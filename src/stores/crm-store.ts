@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
-import { Lead, Contact, Company, Deal, ICP } from '@/lib/types';
+import { Lead, Contact, Company, Deal, ICP, Article } from '@/lib/types';
 import apiService from '@/lib/api';
 interface CrmState {
   leads: Lead[];
@@ -8,6 +8,7 @@ interface CrmState {
   companies: Company[];
   deals: Deal[];
   icps: ICP[];
+  articles: Article[];
   isLoading: boolean;
   initialize: () => Promise<void>;
   addLeads: (newLeads: Lead[]) => void;
@@ -26,6 +27,9 @@ interface CrmState {
   addIcp: (icp: ICP) => Promise<void>;
   updateIcp: (icp: ICP) => Promise<void>;
   deleteIcp: (icpId: string) => Promise<void>;
+  addArticle: (article: Article) => Promise<void>;
+  updateArticle: (article: Article) => Promise<void>;
+  deleteArticle: (articleId: string) => Promise<void>;
 }
 export const useCrmStore = create<CrmState>()(
   immer((set, get) => ({
@@ -34,18 +38,20 @@ export const useCrmStore = create<CrmState>()(
     companies: [],
     deals: [],
     icps: [],
+    articles: [],
     isLoading: true,
     initialize: async () => {
       set({ isLoading: true });
       try {
-        const [contacts, companies, deals, icps, leads] = await Promise.all([
+        const [contacts, companies, deals, icps, leads, articles] = await Promise.all([
           apiService.getAll<Contact>('contacts'),
           apiService.getAll<Company>('companies'),
           apiService.getAll<Deal>('deals'),
           apiService.getAll<ICP>('icps'),
           apiService.getAll<Lead>('leads'),
+          apiService.getAll<Article>('articles'),
         ]);
-        set({ contacts, companies, deals, icps, leads, isLoading: false });
+        set({ contacts, companies, deals, icps, leads, articles, isLoading: false });
       } catch (error) {
         console.error("Failed to initialize CRM store:", error);
         set({ isLoading: false });
@@ -125,6 +131,21 @@ export const useCrmStore = create<CrmState>()(
     deleteIcp: async (icpId) => {
       await apiService.delete('icps', icpId);
       set((state) => { state.icps = state.icps.filter(i => i.id !== icpId); });
+    },
+    addArticle: async (article) => {
+      const newArticle = await apiService.create('articles', article);
+      set((state) => { state.articles.unshift(newArticle); });
+    },
+    updateArticle: async (article) => {
+      const updatedArticle = await apiService.update('articles', article);
+      set((state) => {
+        const index = state.articles.findIndex(a => a.id === updatedArticle.id);
+        if (index !== -1) state.articles[index] = updatedArticle;
+      });
+    },
+    deleteArticle: async (articleId) => {
+      await apiService.delete('articles', articleId);
+      set((state) => { state.articles = state.articles.filter(a => a.id !== articleId); });
     },
   }))
 );

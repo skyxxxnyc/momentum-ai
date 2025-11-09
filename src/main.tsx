@@ -1,7 +1,7 @@
 import '@/lib/errorReporter';
 import { enableMapSet } from "immer";
 enableMapSet();
-import React, { StrictMode, useEffect } from 'react'
+import React, { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import {
   createBrowserRouter,
@@ -21,7 +21,9 @@ import { KnowledgeHubPage } from '@/pages/KnowledgeHubPage';
 import { ArticleDetailPage } from '@/pages/ArticleDetailPage';
 import { IcpPage } from '@/pages/IcpPage';
 import { LeadsPage } from '@/pages/LeadsPage';
-import { useCrmStore } from './stores/crm-store';
+import { AppInitializer } from './components/AppInitializer';
+import { ArticleListPage } from './pages/admin/ArticleListPage';
+import { ArticleEditorPage } from './pages/admin/ArticleEditorPage';
 const router = createBrowserRouter([
   {
     path: "/",
@@ -38,16 +40,12 @@ const router = createBrowserRouter([
       { path: "knowledge-hub/:articleId", element: <ArticleDetailPage /> },
       { path: "chat", element: <AiChat /> },
       { path: "settings", element: <SettingsPage /> },
+      { path: "admin/articles", element: <ArticleListPage /> },
+      { path: "admin/articles/new", element: <ArticleEditorPage /> },
+      { path: "admin/articles/edit/:articleId", element: <ArticleEditorPage /> },
     ]
   },
 ]);
-function AppInitializer({ children }: { children: React.ReactNode }) {
-  const initialize = useCrmStore(s => s.initialize);
-  useEffect(() => {
-    initialize();
-  }, [initialize]);
-  return <>{children}</>;
-}
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ErrorBoundary>

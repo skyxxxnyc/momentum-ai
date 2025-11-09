@@ -3,21 +3,24 @@ import { Header } from '@/components/layout/Header';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Search } from 'lucide-react';
-import { ARTICLES } from '@/lib/mock-data';
 import { ArticleCard } from '@/components/knowledge-hub/ArticleCard';
 import { cn } from '@/lib/utils';
-const categories = ['All', ...Array.from(new Set(ARTICLES.map(a => a.category)))];
+import { useCrmStore } from '@/stores/crm-store';
+import { Skeleton } from '@/components/ui/skeleton';
 export function KnowledgeHubPage() {
+  const articles = useCrmStore(s => s.articles);
+  const isLoading = useCrmStore(s => s.isLoading);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
+  const categories = useMemo(() => ['All', ...Array.from(new Set(articles.map(a => a.category)))], [articles]);
   const filteredArticles = useMemo(() => {
-    return ARTICLES.filter(article => {
+    return articles.filter(article => {
       const matchesCategory = selectedCategory === 'All' || article.category === selectedCategory;
       const matchesSearch = article.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                             article.summary.toLowerCase().includes(searchTerm.toLowerCase());
       return matchesCategory && matchesSearch;
     });
-  }, [searchTerm, selectedCategory]);
+  }, [searchTerm, selectedCategory, articles]);
   return (
     <>
       <Header />
@@ -57,7 +60,17 @@ export function KnowledgeHubPage() {
             ))}
           </div>
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-            {filteredArticles.length > 0 ? (
+            {isLoading ? (
+              Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="space-y-4">
+                  <Skeleton className="h-40 w-full" />
+                  <Skeleton className="h-4 w-1/4" />
+                  <Skeleton className="h-6 w-3/4" />
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-full" />
+                </div>
+              ))
+            ) : filteredArticles.length > 0 ? (
               filteredArticles.map(article => (
                 <ArticleCard key={article.id} article={article} />
               ))

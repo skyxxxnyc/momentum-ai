@@ -1,5 +1,5 @@
-import { Contact, Company, Deal, ICP, Lead } from './types';
-type CrmEntity = Contact | Company | Deal | ICP | Lead;
+import { Contact, Company, Deal, ICP, Lead, Article } from './types';
+type CrmEntity = Contact | Company | Deal | ICP | Lead | Article;
 const handleResponse = async (response: Response) => {
   if (!response.ok) {
     const errorText = await response.text();
@@ -16,7 +16,7 @@ const apiService = {
     const response = await fetch(`/api/${entity}`);
     return handleResponse(response);
   },
-  create: async <T extends { id: string }>(entity: string, data: Omit<T, 'id'>): Promise<T> => {
+  create: async <T extends { id: string }>(entity: string, data: T): Promise<T> => {
     const response = await fetch(`/api/${entity}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

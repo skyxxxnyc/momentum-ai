@@ -78,7 +78,7 @@ export function DashboardPage() {
     const pipelineValue = deals.reduce((sum, deal) => sum + deal.value, 0);
     const dealsWon = deals.filter(d => d.stage === 'Closed-Won').length;
     return [
-      { id: 'kpi-pipeline', title: 'Pipeline Value', value: `$${(pipelineValue / 1000000).toFixed(1)}M`, icon: DollarSign, change: '+12%', link: '/deals' },
+      { id: 'kpi-pipeline', title: 'Pipeline Value', value: `${(pipelineValue / 1000000).toFixed(1)}M`, icon: DollarSign, change: '+12%', link: '/deals' },
       { id: 'kpi-deals-won', title: 'Deals Won', value: dealsWon, icon: Handshake, change: '+5', link: '/deals' },
       { id: 'kpi-conversion', title: 'Conversion Rate', value: '24%', icon: Target, change: '-1.2%', link: '/deals' },
       { id: 'kpi-activities', title: 'Activities Logged', value: '452', icon: ActivityIcon, change: '+50', link: '/' },
@@ -95,11 +95,11 @@ export function DashboardPage() {
     }, {} as Record<string, { name: string; value: number }>);
     return Object.values(dealStageData);
   }, [deals]);
-  const allWidgets = {
+  const allWidgets = useMemo(() => ({
     ...kpiData.reduce((acc, item) => ({ ...acc, [item.id]: <KpiCard item={item} /> }), {}),
     'chart-pipeline': <PipelineChart data={pipelineChartData} />,
     'chart-activity': <ActivityChart />,
-  };
+  }), [kpiData, pipelineChartData]);
   const sortedWidgets = useMemo(() => {
     return dashboardLayout.map(id => ({
       id,

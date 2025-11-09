@@ -1,15 +1,16 @@
 import { DurableObject } from 'cloudflare:workers';
 import type { Env } from './core-utils';
-import { Contact, Company, Deal, ICP, Lead } from '../src/lib/types';
-import { CONTACTS, COMPANIES, DEALS, ICPS, LEADS } from '../src/lib/mock-data';
-type CrmEntity = 'contacts' | 'companies' | 'deals' | 'icps' | 'leads';
-type CrmData = Contact | Company | Deal | ICP | Lead;
+import { Contact, Company, Deal, ICP, Lead, Article } from '../src/lib/types';
+import { CONTACTS, COMPANIES, DEALS, ICPS, LEADS, ARTICLES } from '../src/lib/mock-data';
+type CrmEntity = 'contacts' | 'companies' | 'deals' | 'icps' | 'leads' | 'articles';
+type CrmData = Contact | Company | Deal | ICP | Lead | Article;
 interface CrmStorage {
   contacts: Contact[];
   companies: Company[];
   deals: Deal[];
   icps: ICP[];
   leads: Lead[];
+  articles: Article[];
 }
 export class AppController extends DurableObject<Env> {
   private state: CrmStorage = {
@@ -18,6 +19,7 @@ export class AppController extends DurableObject<Env> {
     deals: [],
     icps: [],
     leads: [],
+    articles: [],
   };
   private loaded = false;
   constructor(ctx: DurableObjectState, env: Env) {
@@ -36,6 +38,7 @@ export class AppController extends DurableObject<Env> {
           deals: DEALS,
           icps: ICPS,
           leads: LEADS,
+          articles: ARTICLES,
         };
         await this.persist();
       }
@@ -54,7 +57,7 @@ export class AppController extends DurableObject<Env> {
       switch (request.method) {
         case 'GET':
           return Response.json({ success: true, data: this.state[entityKey] || [] });
-        case 'POST':
+        case 'POST': {
           if (action === 'convert' && entityKey === 'leads') {
             const result = await this.convertLead(id);
             return Response.json({ success: true, data: result });
@@ -63,19 +66,22 @@ export class AppController extends DurableObject<Env> {
           this.state[entityKey].unshift(newData as any);
           await this.persist();
           return Response.json({ success: true, data: newData });
-        case 'PUT':
+        }
+        case 'PUT': {
           const updatedData = await request.json<CrmData>();
           const index = this.state[entityKey].findIndex((item: CrmData) => item.id === id);
           if (index === -1) return new Response('Not Found', { status: 404 });
           this.state[entityKey][index] = updatedData as any;
           await this.persist();
           return Response.json({ success: true, data: updatedData });
-        case 'DELETE':
+        }
+        case 'DELETE': {
           const initialLength = this.state[entityKey].length;
           this.state[entityKey] = this.state[entityKey].filter((item: CrmData) => item.id !== id) as any;
           if (this.state[entityKey].length === initialLength) return new Response('Not Found', { status: 404 });
           await this.persist();
           return Response.json({ success: true, data: { id } });
+        }
         default:
           return new Response('Method Not Allowed', { status: 405 });
       }

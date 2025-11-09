@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Handshake, Users, Building, MessageSquare, Settings, BookOpen, Target, ListFilter } from 'lucide-react';
+import { LayoutDashboard, Handshake, Users, Building, MessageSquare, Settings, BookOpen, Target, ListFilter, ShieldCheck } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 const navItems = [
@@ -15,6 +15,7 @@ const navItems = [
 ];
 const bottomItems = [
     { to: '/settings', icon: Settings, label: 'Settings' },
+    { to: '/admin/articles', icon: ShieldCheck, label: 'Admin' },
 ]
 export function Sidebar() {
   return (
