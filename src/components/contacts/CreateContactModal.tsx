@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { COMPANIES } from '@/lib/mock-data';
+import { useCrmStore } from '@/stores/crm-store';
 import { Contact } from '@/lib/types';
 interface CreateContactModalProps {
   isOpen: boolean;
@@ -12,10 +12,13 @@ interface CreateContactModalProps {
   onContactCreated: (contact: Contact) => void;
 }
 export function CreateContactModal({ isOpen, onOpenChange, onContactCreated }: CreateContactModalProps) {
+  const companies = useCrmStore(s => s.companies);
+  const contacts = useCrmStore(s => s.contacts);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [title, setTitle] = useState('');
   const [companyId, setCompanyId] = useState('');
+  const [referredById, setReferredById] = useState('');
   const handleSubmit = () => {
     if (!name || !email || !title || !companyId) return;
     const newContact: Contact = {
@@ -26,6 +29,7 @@ export function CreateContactModal({ isOpen, onOpenChange, onContactCreated }: C
       companyId,
       lastContacted: new Date().toISOString(),
       avatarUrl: `https://api.dicebear.com/8.x/avataaars/svg?seed=${name}`,
+      referredById: referredById || undefined,
     };
     onContactCreated(newContact);
     onOpenChange(false);
@@ -34,6 +38,7 @@ export function CreateContactModal({ isOpen, onOpenChange, onContactCreated }: C
     setEmail('');
     setTitle('');
     setCompanyId('');
+    setReferredById('');
   };
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -62,8 +67,21 @@ export function CreateContactModal({ isOpen, onOpenChange, onContactCreated }: C
                 <SelectValue placeholder="Select a company" />
               </SelectTrigger>
               <SelectContent>
-                {COMPANIES.map(company => (
+                {companies.map(company => (
                   <SelectItem key={company.id} value={company.id}>{company.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="referredBy" className="text-right">Referred By</Label>
+            <Select value={referredById} onValueChange={setReferredById}>
+              <SelectTrigger className="col-span-3 bg-accent">
+                <SelectValue placeholder="Select referrer (optional)" />
+              </SelectTrigger>
+              <SelectContent>
+                {contacts.map(contact => (
+                  <SelectItem key={contact.id} value={contact.id}>{contact.name}</SelectItem>
                 ))}
               </SelectContent>
             </Select>

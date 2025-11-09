@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { MoreHorizontal, Trash2, Zap } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Toaster, toast } from 'sonner';
+import { Badge } from '@/components/ui/badge';
 export function LeadsPage() {
   const leads = useCrmStore(s => s.leads);
   const convertLead = useCrmStore(s => s.convertLead);
@@ -29,11 +30,26 @@ export function LeadsPage() {
     });
   };
   const columns = [
-    { accessor: 'name' as keyof Lead, header: 'Name' },
+    {
+      accessor: 'name' as keyof Lead,
+      header: 'Name',
+      cell: (item: Lead) => (
+        <div className="flex items-center gap-2">
+          <span className="font-medium">{item.name}</span>
+          {item.leadScore > 85 && <Badge className="bg-red-500/20 text-red-400 border-red-500/30 hover:bg-red-500/30">🔥 Hot</Badge>}
+        </div>
+      ),
+    },
     { accessor: 'title' as keyof Lead, header: 'Title' },
     { accessor: 'companyName' as keyof Lead, header: 'Company' },
     { accessor: 'email' as keyof Lead, header: 'Email' },
-    { accessor: 'location' as keyof Lead, header: 'Location' },
+    {
+      accessor: 'leadScore' as keyof Lead,
+      header: 'Score',
+      cell: (item: Lead) => (
+        <div className="font-semibold text-momentum-slate">{item.leadScore}</div>
+      ),
+    },
     { accessor: 'status' as keyof Lead, header: 'Status' },
     {
       accessor: 'actions' as const,

@@ -55,7 +55,7 @@ export function IcpPage() {
       Company Size: ${icp.companySize[0]}-${icp.companySize[1]} employees
       Location: ${icp.location}
       Keywords: ${icp.keywords.join(', ')}
-      Please provide the response as a JSON array of objects, where each object has the following keys: "name", "title", "companyName", "email", "location". Do not include any other text or explanation in your response, only the JSON array.
+      Please provide the response as a JSON array of objects, where each object has the following keys: "name", "title", "companyName", "email", "location", and "leadScore" (a number between 50 and 100). Do not include any other text or explanation in your response, only the JSON array.
     `;
     let aiResponse = '';
     await chatService.sendMessage(prompt, undefined, (chunk) => {
@@ -72,6 +72,7 @@ export function IcpPage() {
           email: l.email || 'N/A',
           location: l.location || 'N/A',
           status: 'New',
+          leadScore: l.leadScore || 75,
         }));
         addLeads(newLeads);
         toast.success(`${newLeads.length} new leads generated!`);
@@ -80,7 +81,7 @@ export function IcpPage() {
         throw new Error("AI response was not an array.");
       }
     } catch (error) {
-      console.error("Failed to parse AI response:", error);
+      console.error("Failed to parse AI response:", error, "Response:", aiResponse);
       toast.error("Failed to generate leads. The AI returned an invalid format.");
     }
     setIsFindingLeads(null);

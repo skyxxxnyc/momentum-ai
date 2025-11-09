@@ -35,8 +35,8 @@ export class AppController extends DurableObject<Env> {
     if (!this.loaded) {
       const stored = await this.ctx.storage.get<CrmStorage>('crm_data');
       if (stored && stored.contacts?.length > 0) {
-        this.state = { 
-          ...stored, 
+        this.state = {
+          ...stored,
           notifications: stored.notifications || [],
           comments: stored.comments || [],
         };
@@ -61,6 +61,31 @@ export class AppController extends DurableObject<Env> {
   private async persist(): Promise<void> {
     await this.ctx.storage.put('crm_data', this.state);
   }
+  private calculateRelationshipStrength(entityId: string, entityType: 'contact' | 'company'): number {
+    const now = new Date().getTime();
+    const activities = this.state.activities.filter(a =>
+      entityType === 'contact' ? a.contactId === entityId : a.companyId === entityId
+    );
+    if (activities.length === 0) {
+      return 10; // Base score for no activity
+    }
+    let score = 0;
+    const sevenDaysAgo = now - 7 * 24 * 60 * 60 * 1000;
+    const thirtyDaysAgo = now - 30 * 24 * 60 * 60 * 1000;
+    activities.forEach(activity => {
+      const activityTime = new Date(activity.date).getTime();
+      if (activityTime > sevenDaysAgo) {
+        score += 15; // High score for recent activity
+      } else if (activityTime > thirtyDaysAgo) {
+        score += 5; // Medium score for semi-recent
+      } else {
+        score += 1; // Low score for old activity
+      }
+    });
+    // Add a bonus for total number of activities, capped
+    score += Math.min(activities.length * 2, 20);
+    return Math.min(Math.round(score), 100); // Cap score at 100
+  }
   async fetch(request: Request): Promise<Response> {
     await this.ensureLoaded();
     const url = new URL(request.url);
@@ -72,6 +97,20 @@ export class AppController extends DurableObject<Env> {
       }
       switch (request.method) {
         case 'GET':
+          if (entityKey === 'contacts') {
+            const contactsWithStrength = this.state.contacts.map(contact => ({
+              ...contact,
+              relationshipStrength: this.calculateRelationshipStrength(contact.id, 'contact')
+            }));
+            return Response.json({ success: true, data: contactsWithStrength });
+          }
+          if (entityKey === 'companies') {
+            const companiesWithStrength = this.state.companies.map(company => ({
+              ...company,
+              relationshipStrength: this.calculateRelationshipStrength(company.id, 'company')
+            }));
+            return Response.json({ success: true, data: companiesWithStrength });
+          }
           return Response.json({ success: true, data: this.state[entityKey] || [] });
         case 'POST': {
           if (action === 'convert' && entityKey === 'leads') {

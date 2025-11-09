@@ -7,6 +7,8 @@ export interface Contact {
   companyId: string;
   avatarUrl?: string;
   lastContacted: string;
+  relationshipStrength?: number;
+  referredById?: string;
 }
 export interface Company {
   id: string;
@@ -15,6 +17,7 @@ export interface Company {
   employees: number;
   location: string;
   logoUrl?: string;
+  relationshipStrength?: number;
 }
 export interface Deal {
   id: string;
@@ -61,6 +64,7 @@ export interface Lead {
   email: string;
   location: string;
   status: 'New' | 'Contacted' | 'Qualified';
+  leadScore: number;
 }
 export interface Notification {
   id: string;

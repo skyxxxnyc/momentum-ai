@@ -4,9 +4,11 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Company } from '@/lib/types';
-import { Mail, Phone, StickyNote, Briefcase, Building, Users, MapPin, BarChart } from 'lucide-react';
+import { Mail, Phone, StickyNote, Briefcase, Building, Users, MapPin, BarChart, Zap } from 'lucide-react';
 import { useCrmStore } from '@/stores/crm-store';
 import { LogActivityForm } from '../shared/LogActivityForm';
+import { Progress } from '@/components/ui/progress';
+import { cn } from '@/lib/utils';
 interface CompanyDetailSheetProps {
   company: Company | null;
   isOpen: boolean;
@@ -24,6 +26,11 @@ export function CompanyDetailSheet({ company, isOpen, onOpenChange }: CompanyDet
   if (!company) return null;
   const companyActivities = activities.filter(a => a.companyId === company.id).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   const companyContacts = contacts.filter(c => c.companyId === company.id);
+  const getScoreColor = (score: number) => {
+    if (score > 75) return 'bg-green-500';
+    if (score > 50) return 'bg-yellow-500';
+    return 'bg-red-500';
+  };
   return (
     <Sheet open={isOpen} onOpenChange={onOpenChange}>
       <SheetContent className="w-[400px] sm:w-[540px] bg-card border-l border-border/50 text-momentum-slate p-0 flex flex-col">
@@ -46,6 +53,20 @@ export function CompanyDetailSheet({ company, isOpen, onOpenChange }: CompanyDet
             <TabsTrigger value="activity">Activity</TabsTrigger>
           </TabsList>
           <TabsContent value="details" className="flex-1 overflow-y-auto p-6 space-y-6">
+            <div className="space-y-4">
+              <h3 className="font-semibold text-momentum-light-slate">Relationship Intelligence</h3>
+              {company.relationshipStrength && (
+                <div className="flex items-center text-sm">
+                  <Zap className="w-4 h-4 mr-3 text-momentum-dark-slate" />
+                  <span className="text-momentum-dark-slate mr-2">Strength:</span>
+                  <div className="flex items-center gap-2 w-1/2">
+                    <Progress value={company.relationshipStrength} className={cn("w-full h-2", getScoreColor(company.relationshipStrength))} />
+                    <span className="font-semibold text-momentum-slate">{company.relationshipStrength}</span>
+                  </div>
+                </div>
+              )}
+            </div>
+            <Separator />
             <div className="space-y-4">
               <h3 className="font-semibold text-momentum-light-slate">Company Information</h3>
               <div className="flex items-center text-sm">
