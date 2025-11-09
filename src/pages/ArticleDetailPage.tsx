@@ -1,14 +1,13 @@
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { ARTICLES } from '@/lib/mock-data';
 import { Header } from '@/components/layout/Header';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useCrmStore } from '@/stores/crm-store';
 export function ArticleDetailPage() {
   const { articleId } = useParams<{ articleId: string }>();
-  const articles = useCrmStore(s => s.articles);
-  const article = articles.find(a => a.id === articleId);
+  const article = ARTICLES.find(a => a.id === articleId);
   if (!article) {
     return (
       <>
