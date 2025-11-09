@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator } from '@/components/ui/command';
-import { LayoutDashboard, Handshake, Users, MessageSquare, PlusCircle, Building, FileText, Contact, Briefcase, BookOpen } from 'lucide-react';
+import { LayoutDashboard, Handshake, Users, MessageSquare, PlusCircle, Building, FileText, Contact, Briefcase, BookOpen, Target } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { DEALS, CONTACTS, COMPANIES } from '@/lib/mock-data';
 interface CommandPaletteProps {
@@ -74,6 +74,10 @@ export function CommandPalette({ open, setOpen }: CommandPaletteProps) {
            <CommandItem onSelect={() => runCommand(() => navigate('/companies'))}>
             <Building className="mr-2 h-4 w-4" />
             <span>Companies</span>
+          </CommandItem>
+          <CommandItem onSelect={() => runCommand(() => navigate('/icps'))}>
+            <Target className="mr-2 h-4 w-4" />
+            <span>ICPs</span>
           </CommandItem>
           <CommandItem onSelect={() => runCommand(() => navigate('/knowledge-hub'))}>
             <BookOpen className="mr-2 h-4 w-4" />

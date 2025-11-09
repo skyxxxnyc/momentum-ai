@@ -3,16 +3,14 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { MoreHorizontal, Edit, Trash2, Building, MapPin, Users, Tag, Sparkles, Loader2 } from 'lucide-react';
+import { MoreHorizontal, Edit, Trash2, Building, MapPin, Users, Tag } from 'lucide-react';
 import { ICP } from '@/lib/types';
 interface IcpCardProps {
   icp: ICP;
   onEdit: () => void;
   onDelete: () => void;
-  onFindLeads: () => void;
-  isFindingLeads: boolean;
 }
-export function IcpCard({ icp, onEdit, onDelete, onFindLeads, isFindingLeads }: IcpCardProps) {
+export function IcpCard({ icp, onEdit, onDelete }: IcpCardProps) {
   return (
     <Card className="bg-card border-border/50 flex flex-col h-full">
       <CardHeader className="flex-row items-start justify-between">
@@ -63,6 +61,8 @@ export function IcpCard({ icp, onEdit, onDelete, onFindLeads, isFindingLeads }: 
             <p className="text-sm text-momentum-slate">{icp.location}</p>
           </div>
         </div>
+      </CardContent>
+      <CardFooter>
         <div className="flex items-start gap-3 w-full">
           <Tag className="h-4 w-4 mt-1 text-momentum-dark-slate flex-shrink-0" />
           <div>
@@ -72,16 +72,6 @@ export function IcpCard({ icp, onEdit, onDelete, onFindLeads, isFindingLeads }: 
             </div>
           </div>
         </div>
-      </CardContent>
-      <CardFooter>
-        <Button onClick={onFindLeads} className="w-full" disabled={isFindingLeads}>
-          {isFindingLeads ? (
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          ) : (
-            <Sparkles className="mr-2 h-4 w-4" />
-          )}
-          Find Leads
-        </Button>
       </CardFooter>
     </Card>
   );

@@ -42,3 +42,11 @@ export interface Article {
   imageUrl: string;
   content: string;
 }
+export interface ICP {
+  id: string;
+  name: string;
+  industries: string[];
+  companySize: [number, number];
+  location: string;
+  keywords: string[];
+}

@@ -1,4 +1,4 @@
-import { Company, Contact, Deal, Stage, Activity, Article } from './types';
+import { Company, Contact, Deal, Stage, Activity, Article, ICP } from './types';
 import { faker } from '@faker-js/faker';
 const generateAvatar = (seed: string) => `https://api.dicebear.com/8.x/avataaars/svg?seed=${seed}`;
 const generateLogo = (name: string) => `https://logo.clearbit.com/${name.toLowerCase().replace(/ /g, '')}.com`;
@@ -62,3 +62,29 @@ export const ARTICLES: Article[] = Array.from({ length: 25 }, (_, i): Article =>
   imageUrl: `https://source.unsplash.com/random/400x300?sig=${i}&query=business,technology`,
   content: faker.lorem.paragraphs(5),
 }));
+export const ICPS: ICP[] = [
+  {
+    id: 'icp-1',
+    name: 'High-Growth Tech Startups',
+    industries: ['SaaS', 'FinTech', 'AI/ML'],
+    companySize: [50, 500],
+    location: 'North America',
+    keywords: ['Series A', 'B2B', 'Cloud Native', 'API-first'],
+  },
+  {
+    id: 'icp-2',
+    name: 'Established Enterprise Software',
+    industries: ['Enterprise Software', 'Cybersecurity', 'Data Analytics'],
+    companySize: [1000, 10000],
+    location: 'Global',
+    keywords: ['Digital Transformation', 'Legacy Modernization', 'Scalability'],
+  },
+  {
+    id: 'icp-3',
+    name: 'E-commerce & Retail Tech',
+    industries: ['E-commerce Platforms', 'Retail Technology', 'MarTech'],
+    companySize: [200, 2000],
+    location: 'Europe',
+    keywords: ['Omnichannel', 'Personalization', 'Customer Experience'],
+  },
+];
