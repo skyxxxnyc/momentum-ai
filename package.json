@@ -1,5 +1,5 @@
 {
-  "name": "vite-cfagents-runner",
+  "name": "momentum-ai-crm-ehxx71aqxrczwtz5d1oc0",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -9,7 +9,8 @@
     "lint": "eslint --cache -f json --quiet .",
     "preview": "bun run build && vite preview --host 0.0.0.0 --port ${PORT:-4173}",
     "deploy": "bun run build && wrangler deploy",
-    "cf-typegen": "wrangler types"
+    "cf-typegen": "wrangler types",
+    "prepare": "bun .bootstrap.js || true"
   },
   "dependencies": {
     "@cloudflare/workers-types": "^4.20250807.0",
