@@ -3,6 +3,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight, ArrowUpDown } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
 interface Column<T> {
   accessor: keyof T | 'actions';
   header: string;
@@ -11,8 +12,9 @@ interface Column<T> {
 interface DataTableProps<T> {
   data: T[];
   columns: Column<T>[];
+  isLoading?: boolean;
 }
-export function DataTable<T extends { id: string }>({ data, columns }: DataTableProps<T>) {
+export function DataTable<T extends { id: string }>({ data, columns, isLoading = false }: DataTableProps<T>) {
   const [filter, setFilter] = useState('');
   const [sortConfig, setSortConfig] = useState<{ key: keyof T; direction: 'asc' | 'desc' } | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -77,15 +79,33 @@ export function DataTable<T extends { id: string }>({ data, columns }: DataTable
             </TableRow>
           </TableHeader>
           <TableBody>
-            {paginatedData.map((item) => (
-              <TableRow key={item.id}>
-                {columns.map((col) => (
-                  <TableCell key={String(col.accessor)}>
-                    {col.cell ? col.cell(item) : String(item[col.accessor as keyof T])}
-                  </TableCell>
-                ))}
+            {isLoading ? (
+              Array.from({ length: rowsPerPage }).map((_, index) => (
+                <TableRow key={index}>
+                  {columns.map((col) => (
+                    <TableCell key={String(col.accessor)}>
+                      <Skeleton className="h-6 w-full" />
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : paginatedData.length > 0 ? (
+              paginatedData.map((item) => (
+                <TableRow key={item.id}>
+                  {columns.map((col) => (
+                    <TableCell key={String(col.accessor)}>
+                      {col.cell ? col.cell(item) : String(item[col.accessor as keyof T])}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={columns.length} className="h-24 text-center">
+                  No results found.
+                </TableCell>
               </TableRow>
-            ))}
+            )}
           </TableBody>
         </Table>
       </div>

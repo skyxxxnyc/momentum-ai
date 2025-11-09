@@ -4,11 +4,12 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsive
 import { DEALS } from '@/lib/mock-data';
 import { DollarSign, Handshake, Target, Activity as ActivityIcon } from 'lucide-react';
 import { Header } from '@/components/layout/Header';
+import { Link } from 'react-router-dom';
 const kpiData = [
-  { title: 'Pipeline Value', value: '$1.2M', icon: DollarSign, change: '+12%' },
-  { title: 'Deals Won', value: '82', icon: Handshake, change: '+5' },
-  { title: 'Conversion Rate', value: '24%', icon: Target, change: '-1.2%' },
-  { title: 'Activities Logged', value: '452', icon: ActivityIcon, change: '+50' },
+  { title: 'Pipeline Value', value: '$1.2M', icon: DollarSign, change: '+12%', link: '/deals' },
+  { title: 'Deals Won', value: '82', icon: Handshake, change: '+5', link: '/deals' },
+  { title: 'Conversion Rate', value: '24%', icon: Target, change: '-1.2%', link: '/deals' },
+  { title: 'Activities Logged', value: '452', icon: ActivityIcon, change: '+50', link: '/' },
 ];
 const dealStageData = DEALS.reduce((acc, deal) => {
   const stage = deal.stage;
@@ -34,16 +35,18 @@ export function DashboardPage() {
       <div className="p-4 md:p-8 space-y-8">
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
           {kpiData.map((kpi) => (
-            <Card key={kpi.title}>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-momentum-dark-slate">{kpi.title}</CardTitle>
-                <kpi.icon className="h-5 w-5 text-momentum-dark-slate" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold text-momentum-slate">{kpi.value}</div>
-                <p className="text-xs text-momentum-dark-slate">{kpi.change} from last month</p>
-              </CardContent>
-            </Card>
+            <Link to={kpi.link} key={kpi.title}>
+              <Card className="transition-all duration-200 hover:shadow-lg hover:-translate-y-1">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium text-momentum-dark-slate">{kpi.title}</CardTitle>
+                  <kpi.icon className="h-5 w-5 text-momentum-dark-slate" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold text-momentum-slate">{kpi.value}</div>
+                  <p className="text-xs text-momentum-dark-slate">{kpi.change} from last month</p>
+                </CardContent>
+              </Card>
+            </Link>
           ))}
         </div>
         <div className="grid gap-6 lg:grid-cols-2">
@@ -56,7 +59,7 @@ export function DashboardPage() {
                 <BarChart data={pipelineChartData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                   <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
-                  <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `$${Number(value) / 1000}k`} />
+                  <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `${Number(value) / 1000}k`} />
                   <Tooltip
                     contentStyle={{
                       backgroundColor: 'hsl(var(--background))',

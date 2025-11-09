@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { DataTable } from '@/components/shared/DataTable';
 import { COMPANIES } from '@/lib/mock-data';
 import { Company } from '@/lib/types';
@@ -10,10 +10,18 @@ import { CreateCompanyModal } from '@/components/companies/CreateCompanyModal';
 import { EditCompanyModal } from '@/components/companies/EditCompanyModal';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 export function CompaniesPage() {
-  const [companies, setCompanies] = useState<Company[]>(COMPANIES);
+  const [companies, setCompanies] = useState<Company[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setCompanies(COMPANIES);
+      setIsLoading(false);
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, []);
   const handleCompanyCreated = (newCompany: Company) => {
     setCompanies(prev => [newCompany, ...prev]);
   };
@@ -82,7 +90,7 @@ export function CompaniesPage() {
         </Button>
       </Header>
       <div className="p-4 md:p-8">
-        <DataTable data={companies} columns={columns} />
+        <DataTable data={companies} columns={columns} isLoading={isLoading} />
       </div>
       <CreateCompanyModal
         isOpen={isCreateModalOpen}

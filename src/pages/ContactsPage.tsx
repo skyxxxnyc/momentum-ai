@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { DataTable } from '@/components/shared/DataTable';
 import { CONTACTS, COMPANIES } from '@/lib/mock-data';
 import { Contact } from '@/lib/types';
@@ -10,10 +10,18 @@ import { EditContactModal } from '@/components/contacts/EditContactModal';
 import { Header } from '@/components/layout/Header';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 export function ContactsPage() {
-  const [contacts, setContacts] = useState<Contact[]>(CONTACTS);
+  const [contacts, setContacts] = useState<Contact[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setContacts(CONTACTS);
+      setIsLoading(false);
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, []);
   const handleContactCreated = (newContact: Contact) => {
     setContacts(prev => [newContact, ...prev]);
   };
@@ -87,7 +95,7 @@ export function ContactsPage() {
         </Button>
       </Header>
       <div className="p-4 md:p-8">
-        <DataTable data={contacts} columns={columns} />
+        <DataTable data={contacts} columns={columns} isLoading={isLoading} />
       </div>
       <CreateContactModal
         isOpen={isCreateModalOpen}
