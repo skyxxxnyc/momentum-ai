@@ -8,7 +8,7 @@ export const COMPANIES: Company[] = Array.from({ length: 15 }, (_, i): Company =
   return {
     id: `comp-${i}`,
     name,
-    industry: faker.company.bsNoun(),
+    industry: faker.company.buzzNoun(),
     employees: faker.number.int({ min: 10, max: 5000 }),
     location: faker.location.city(),
     logoUrl: generateLogo(name),
@@ -35,7 +35,7 @@ export const DEALS: Deal[] = Array.from({ length: 30 }, (_, i): Deal => {
     id: `deal-${i}`,
     title: `${company.name} - ${faker.commerce.productName()} Deal`,
     value: faker.number.int({ min: 1000, max: 500000 }),
-    stage: faker.helpers.arrayElement(STAGES),
+    stage: faker.helpers.arrayElement(STAGES.filter(s => s !== 'Closed-Won' && s !== 'Closed-Lost')),
     contactId: contact?.id || CONTACTS[0].id,
     companyId: company.id,
     closeDate: faker.date.future().toISOString(),

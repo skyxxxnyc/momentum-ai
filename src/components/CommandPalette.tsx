@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
-import { LayoutDashboard, Handshake, Users, MessageSquare, PlusCircle } from 'lucide-react';
+import { LayoutDashboard, Handshake, Users, MessageSquare, PlusCircle, Building } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 interface CommandPaletteProps {
   open: boolean;
@@ -12,12 +12,12 @@ export function CommandPalette({ open, setOpen }: CommandPaletteProps) {
     const down = (e: KeyboardEvent) => {
       if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
         e.preventDefault();
-        setOpen((open) => !open);
+        setOpen(!open);
       }
     };
     document.addEventListener('keydown', down);
     return () => document.removeEventListener('keydown', down);
-  }, [setOpen]);
+  }, [setOpen, open]);
   const runCommand = (command: () => void) => {
     setOpen(false);
     command();
@@ -38,7 +38,11 @@ export function CommandPalette({ open, setOpen }: CommandPaletteProps) {
           </CommandItem>
           <CommandItem onSelect={() => runCommand(() => navigate('/contacts'))}>
             <Users className="mr-2 h-4 w-4" />
-            <span>Contacts & Companies</span>
+            <span>Contacts</span>
+          </CommandItem>
+           <CommandItem onSelect={() => runCommand(() => navigate('/companies'))}>
+            <Building className="mr-2 h-4 w-4" />
+            <span>Companies</span>
           </CommandItem>
           <CommandItem onSelect={() => runCommand(() => navigate('/chat'))}>
             <MessageSquare className="mr-2 h-4 w-4" />

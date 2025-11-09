@@ -1,25 +1,35 @@
-import React, { useState } from 'react';
-import { DndContext, closestCenter, DragEndEvent } from '@dnd-kit/core';
-import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import React from 'react';
+import { DndContext, closestCenter, DragEndEvent, DragOverlay, DragStartEvent, useSensor, useSensors, PointerSensor } from '@dnd-kit/core';
+import { SortableContext, useSortable, arrayMove } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Deal, Stage, Contact, Company } from '@/lib/types';
 import { STAGES } from '@/lib/mock-data';
+import { createPortal } from 'react-dom';
 interface DealCardProps {
   deal: Deal;
   contact?: Contact;
   company?: Company;
+  isOverlay?: boolean;
+  onClick: () => void;
 }
-function DealCard({ deal, contact, company }: DealCardProps) {
-  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: deal.id });
+function DealCard({ deal, contact, company, isOverlay, onClick }: DealCardProps) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: deal.id, data: { stage: deal.stage } });
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
   };
   return (
-    <Card ref={setNodeRef} style={style} {...attributes} {...listeners} className="mb-4 bg-accent cursor-grab active:cursor-grabbing">
+    <Card 
+      ref={setNodeRef} 
+      style={style} 
+      {...attributes} 
+      {...listeners} 
+      onClick={onClick}
+      className={`mb-4 bg-accent cursor-grab active:cursor-grabbing ${isDragging ? 'opacity-50' : ''} ${isOverlay ? 'shadow-lg' : ''}`}
+    >
       <CardContent className="p-4">
         <h4 className="font-semibold text-momentum-slate">{deal.title}</h4>
         <p className="text-sm text-momentum-dark-slate">{company?.name}</p>
@@ -43,11 +53,13 @@ interface KanbanColumnProps {
   deals: Deal[];
   contacts: Contact[];
   companies: Company[];
+  onSelectDeal: (deal: Deal) => void;
 }
-function KanbanColumn({ stage, deals, contacts, companies }: KanbanColumnProps) {
+function KanbanColumn({ stage, deals, contacts, companies, onSelectDeal }: KanbanColumnProps) {
+  const { setNodeRef } = useSortable({ id: stage });
   const totalValue = deals.reduce((sum, deal) => sum + deal.value, 0);
   return (
-    <div className="w-80 flex-shrink-0">
+    <div ref={setNodeRef} className="w-80 flex-shrink-0">
       <Card className="border-0 bg-transparent">
         <CardHeader className="px-2 py-2">
           <div className="flex items-center justify-between">
@@ -60,11 +72,11 @@ function KanbanColumn({ stage, deals, contacts, companies }: KanbanColumnProps) 
           </div>
         </CardHeader>
         <CardContent className="p-2 h-[calc(100vh-20rem)] overflow-y-auto">
-          <SortableContext items={deals.map(d => d.id)} strategy={verticalListSortingStrategy}>
+          <SortableContext items={deals.map(d => d.id)}>
             {deals.map(deal => {
               const contact = contacts.find(c => c.id === deal.contactId);
               const company = companies.find(c => c.id === deal.companyId);
-              return <DealCard key={deal.id} deal={deal} contact={contact} company={company} />;
+              return <DealCard key={deal.id} deal={deal} contact={contact} company={company} onClick={() => onSelectDeal(deal)} />;
             })}
           </SortableContext>
         </CardContent>
@@ -74,38 +86,88 @@ function KanbanColumn({ stage, deals, contacts, companies }: KanbanColumnProps) 
 }
 interface KanbanBoardProps {
   deals: Deal[];
+  setDeals: React.Dispatch<React.SetStateAction<Deal[]>>;
   contacts: Contact[];
   companies: Company[];
+  onSelectDeal: (deal: Deal) => void;
 }
-export function KanbanBoard({ deals: initialDeals, contacts, companies }: KanbanBoardProps) {
-  const [deals, setDeals] = useState(initialDeals);
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (over && active.id !== over.id) {
-      // This is a simplified drag-and-drop logic.
-      // A full implementation would handle moving between columns.
-      // For now, we'll just reorder within the same column.
-      const activeDeal = deals.find(d => d.id === active.id);
-      if (activeDeal) {
-        // A more robust solution would find the column of `over.id`
-        // and update the stage of `activeDeal`.
-        console.log(`Deal ${active.id} was dropped over ${over.id}. Implement stage change logic here.`);
-      }
+export function KanbanBoard({ deals, setDeals, contacts, companies, onSelectDeal }: KanbanBoardProps) {
+  const [activeDeal, setActiveDeal] = React.useState<Deal | null>(null);
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    })
+  );
+  const handleDragStart = (event: DragStartEvent) => {
+    const { active } = event;
+    const deal = deals.find(d => d.id === active.id);
+    if (deal) {
+      setActiveDeal(deal);
     }
   };
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    setActiveDeal(null);
+    if (!over) return;
+    const activeDeal = deals.find(d => d.id === active.id);
+    if (!activeDeal) return;
+    const overId = over.id;
+    const overStage = STAGES.includes(overId as Stage) 
+      ? overId as Stage 
+      : deals.find(d => d.id === overId)?.stage;
+    if (overStage && activeDeal.stage !== overStage) {
+      setDeals(prevDeals => {
+        const activeIndex = prevDeals.findIndex(d => d.id === active.id);
+        if (activeIndex === -1) return prevDeals;
+        const updatedDeal = { ...prevDeals[activeIndex], stage: overStage };
+        const newDeals = [...prevDeals];
+        newDeals[activeIndex] = updatedDeal;
+        // This is a simplified reordering. A more complex logic would place it correctly in the new list.
+        return newDeals;
+      });
+    } else if (active.id !== over.id) {
+        // Reordering within the same column
+        setDeals((items) => {
+            const oldIndex = items.findIndex(item => item.id === active.id);
+            const newIndex = items.findIndex(item => item.id === over.id);
+            return arrayMove(items, oldIndex, newIndex);
+        });
+    }
+  };
+  const activeContact = activeDeal ? contacts.find(c => c.id === activeDeal.contactId) : undefined;
+  const activeCompany = activeDeal ? companies.find(c => c.id === activeDeal.companyId) : undefined;
   return (
-    <DndContext onDragEnd={handleDragEnd} collisionDetection={closestCenter}>
+    <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd} sensors={sensors} collisionDetection={closestCenter}>
       <div className="flex gap-6 p-4 md:p-8 overflow-x-auto">
-        {STAGES.map(stage => (
-          <KanbanColumn
-            key={stage}
-            stage={stage}
-            deals={deals.filter(d => d.stage === stage)}
-            contacts={contacts}
-            companies={companies}
-          />
-        ))}
+        <SortableContext items={STAGES}>
+          {STAGES.map(stage => (
+            <KanbanColumn
+              key={stage}
+              stage={stage}
+              deals={deals.filter(d => d.stage === stage)}
+              contacts={contacts}
+              companies={companies}
+              onSelectDeal={onSelectDeal}
+            />
+          ))}
+        </SortableContext>
       </div>
+      {createPortal(
+        <DragOverlay>
+          {activeDeal ? (
+            <DealCard 
+              deal={activeDeal} 
+              contact={activeContact} 
+              company={activeCompany} 
+              isOverlay 
+              onClick={() => {}} 
+            />
+          ) : null}
+        </DragOverlay>,
+        document.body
+      )}
     </DndContext>
   );
 }

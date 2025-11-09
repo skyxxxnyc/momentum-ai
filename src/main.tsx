@@ -14,6 +14,7 @@ import { HomePage } from '@/pages/HomePage'
 import { DashboardPage } from '@/pages/DashboardPage';
 import { DealsPage } from '@/pages/DealsPage';
 import { ContactsPage } from '@/pages/ContactsPage';
+import { CompaniesPage } from '@/pages/CompaniesPage';
 import { AiChat } from '@/components/AiChat';
 const router = createBrowserRouter([
   {
@@ -24,6 +25,7 @@ const router = createBrowserRouter([
       { index: true, element: <DashboardPage /> },
       { path: "deals", element: <DealsPage /> },
       { path: "contacts", element: <ContactsPage /> },
+      { path: "companies", element: <CompaniesPage /> },
       { path: "chat", element: <AiChat /> },
       // Add routes for settings and other pages here
       { path: "settings", element: <div className="p-8">Settings Page</div> },

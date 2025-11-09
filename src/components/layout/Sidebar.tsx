@@ -6,7 +6,8 @@ import { cn } from '@/lib/utils';
 const navItems = [
   { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
   { to: '/deals', icon: Handshake, label: 'Deals' },
-  { to: '/contacts', icon: Users, label: 'Contacts & Companies' },
+  { to: '/contacts', icon: Users, label: 'Contacts' },
+  { to: '/companies', icon: Building, label: 'Companies' },
   { to: '/chat', icon: MessageSquare, label: 'AI Agent' },
 ];
 const bottomItems = [
