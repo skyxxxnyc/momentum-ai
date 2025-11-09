@@ -40,6 +40,7 @@ export const DEALS: Deal[] = Array.from({ length: 30 }, (_, i): Deal => {
     companyId: company.id,
     closeDate: faker.date.future().toISOString(),
     lastActivity: faker.date.recent({ days: 7 }).toLocaleDateString(),
+    momentumScore: faker.number.int({ min: 30, max: 95 }),
   };
 });
 export const ACTIVITIES: Activity[] = Array.from({ length: 100 }, (_, i): Activity => {
@@ -51,6 +52,8 @@ export const ACTIVITIES: Activity[] = Array.from({ length: 100 }, (_, i): Activi
         date: faker.date.recent({ days: 90 }).toISOString(),
         contactId: deal.contactId,
         dealId: deal.id,
+        userId: 'user-1',
+        companyId: deal.companyId,
     }
 });
 const ARTICLE_CATEGORIES = ['Sales Tips', 'AI Best Practices', 'Platform Guide', 'Productivity Hacks', 'Industry News'];

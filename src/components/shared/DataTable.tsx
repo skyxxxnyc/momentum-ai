@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight, ArrowUpDown } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { cn } from '@/lib/utils';
 interface Column<T> {
   accessor: keyof T | 'actions';
   header: string;
@@ -13,8 +14,9 @@ interface DataTableProps<T> {
   data: T[];
   columns: Column<T>[];
   isLoading?: boolean;
+  onRowClick?: (item: T) => void;
 }
-export function DataTable<T extends { id: string }>({ data, columns, isLoading = false }: DataTableProps<T>) {
+export function DataTable<T extends { id: string }>({ data, columns, isLoading = false, onRowClick }: DataTableProps<T>) {
   const [filter, setFilter] = useState('');
   const [sortConfig, setSortConfig] = useState<{ key: keyof T; direction: 'asc' | 'desc' } | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -91,7 +93,11 @@ export function DataTable<T extends { id: string }>({ data, columns, isLoading =
               ))
             ) : paginatedData.length > 0 ? (
               paginatedData.map((item) => (
-                <TableRow key={item.id}>
+                <TableRow
+                  key={item.id}
+                  onClick={() => onRowClick?.(item)}
+                  className={cn(onRowClick && 'cursor-pointer hover:bg-accent')}
+                >
                   {columns.map((col) => (
                     <TableCell key={String(col.accessor)}>
                       {col.cell ? col.cell(item) : String(item[col.accessor as keyof T])}

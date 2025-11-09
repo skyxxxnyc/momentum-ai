@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { DataTable } from '@/components/shared/DataTable';
 import { Contact } from '@/lib/types';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -10,6 +10,7 @@ import { Header } from '@/components/layout/Header';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useCrmStore } from '@/stores/crm-store';
 import { Toaster, toast } from 'sonner';
+import { ContactDetailSheet } from '@/components/contacts/ContactDetailSheet';
 export function ContactsPage() {
   const contacts = useCrmStore(s => s.contacts);
   const companies = useCrmStore(s => s.companies);
@@ -20,6 +21,7 @@ export function ContactsPage() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
   const handleContactCreated = async (newContact: Contact) => {
     const promise = addContact(newContact);
     toast.promise(promise, {
@@ -48,6 +50,11 @@ export function ContactsPage() {
     setSelectedContact(contact);
     setIsEditModalOpen(true);
   };
+  const handleRowClick = (contact: Contact) => {
+    setSelectedContact(contact);
+    setIsSheetOpen(true);
+  };
+  const selectedCompany = selectedContact ? companies.find(c => c.id === selectedContact.companyId) : null;
   const columns = [
     {
       accessor: 'name' as keyof Contact,
@@ -86,11 +93,11 @@ export function ContactsPage() {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => handleEditClick(item)}>
+            <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleEditClick(item); }}>
               <Edit className="mr-2 h-4 w-4" />
               <span>Edit</span>
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleDeleteContact(item.id)} className="text-red-500">
+            <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleDeleteContact(item.id); }} className="text-red-500">
               <Trash2 className="mr-2 h-4 w-4" />
               <span>Delete</span>
             </DropdownMenuItem>
@@ -109,7 +116,7 @@ export function ContactsPage() {
         </Button>
       </Header>
       <div className="p-4 md:p-8">
-        <DataTable data={contacts} columns={columns} isLoading={isLoading} />
+        <DataTable data={contacts} columns={columns} isLoading={isLoading} onRowClick={handleRowClick} />
       </div>
       <CreateContactModal
         isOpen={isCreateModalOpen}
@@ -121,6 +128,12 @@ export function ContactsPage() {
         onOpenChange={setIsEditModalOpen}
         contact={selectedContact}
         onContactUpdated={handleUpdateContact}
+      />
+      <ContactDetailSheet
+        isOpen={isSheetOpen}
+        onOpenChange={setIsSheetOpen}
+        contact={selectedContact}
+        company={selectedCompany}
       />
     </>
   );

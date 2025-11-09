@@ -25,6 +25,7 @@ export interface Deal {
   companyId: string;
   closeDate: string;
   lastActivity?: string;
+  momentumScore?: number;
 }
 export interface Activity {
   id: string;
@@ -33,6 +34,8 @@ export interface Activity {
   date: string;
   contactId: string;
   dealId?: string;
+  userId: string;
+  companyId: string;
 }
 export interface Article {
   id: string;

@@ -8,7 +8,9 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Deal, Stage, Contact, Company } from '@/lib/types';
 import { STAGES } from '@/lib/mock-data';
 import { createPortal } from 'react-dom';
-import { Clock } from 'lucide-react';
+import { Clock, Zap } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
+import { cn } from '@/lib/utils';
 interface DealCardProps {
   deal: Deal;
   contact?: Contact;
@@ -21,6 +23,11 @@ function DealCard({ deal, contact, company, isOverlay, onClick }: DealCardProps)
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
+  };
+  const getScoreColor = (score: number) => {
+    if (score > 75) return 'bg-green-500';
+    if (score > 50) return 'bg-yellow-500';
+    return 'bg-red-500';
   };
   return (
     <Card
@@ -47,6 +54,18 @@ function DealCard({ deal, contact, company, isOverlay, onClick }: DealCardProps)
             </Avatar>
           )}
         </div>
+        {deal.momentumScore && (
+          <div className="space-y-1">
+            <div className="flex items-center justify-between text-xs text-momentum-dark-slate">
+              <div className="flex items-center">
+                <Zap className="w-3 h-3 mr-1.5" />
+                <span>Momentum</span>
+              </div>
+              <span>{deal.momentumScore}</span>
+            </div>
+            <Progress value={deal.momentumScore} className="h-1.5" indicatorClassName={getScoreColor(deal.momentumScore)} />
+          </div>
+        )}
         {deal.lastActivity && (
             <div className="flex items-center text-xs text-momentum-dark-slate">
                 <Clock className="w-3 h-3 mr-1.5" />

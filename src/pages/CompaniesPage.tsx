@@ -10,6 +10,7 @@ import { EditCompanyModal } from '@/components/companies/EditCompanyModal';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useCrmStore } from '@/stores/crm-store';
 import { Toaster, toast } from 'sonner';
+import { CompanyDetailSheet } from '@/components/companies/CompanyDetailSheet';
 export function CompaniesPage() {
   const companies = useCrmStore(s => s.companies);
   const addCompany = useCrmStore(s => s.addCompany);
@@ -19,6 +20,7 @@ export function CompaniesPage() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
   const handleCompanyCreated = async (newCompany: Company) => {
     const promise = addCompany(newCompany);
     toast.promise(promise, {
@@ -46,6 +48,10 @@ export function CompaniesPage() {
   const handleEditClick = (company: Company) => {
     setSelectedCompany(company);
     setIsEditModalOpen(true);
+  };
+  const handleRowClick = (company: Company) => {
+    setSelectedCompany(company);
+    setIsSheetOpen(true);
   };
   const columns = [
     {
@@ -80,11 +86,11 @@ export function CompaniesPage() {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => handleEditClick(item)}>
+            <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleEditClick(item); }}>
               <Edit className="mr-2 h-4 w-4" />
               <span>Edit</span>
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleDeleteCompany(item.id)} className="text-red-500">
+            <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleDeleteCompany(item.id); }} className="text-red-500">
               <Trash2 className="mr-2 h-4 w-4" />
               <span>Delete</span>
             </DropdownMenuItem>
@@ -103,7 +109,7 @@ export function CompaniesPage() {
         </Button>
       </Header>
       <div className="p-4 md:p-8">
-        <DataTable data={companies} columns={columns} isLoading={isLoading} />
+        <DataTable data={companies} columns={columns} isLoading={isLoading} onRowClick={handleRowClick} />
       </div>
       <CreateCompanyModal
         isOpen={isCreateModalOpen}
@@ -115,6 +121,11 @@ export function CompaniesPage() {
         onOpenChange={setIsEditModalOpen}
         company={selectedCompany}
         onCompanyUpdated={handleUpdateCompany}
+      />
+      <CompanyDetailSheet
+        isOpen={isSheetOpen}
+        onOpenChange={setIsSheetOpen}
+        company={selectedCompany}
       />
     </>
   );

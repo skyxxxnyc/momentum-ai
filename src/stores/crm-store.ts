@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
-import { Lead, Contact, Company, Deal, ICP, Article } from '@/lib/types';
+import { Lead, Contact, Company, Deal, ICP, Article, Activity } from '@/lib/types';
 import apiService from '@/lib/api';
 interface CrmState {
   leads: Lead[];
@@ -9,6 +9,7 @@ interface CrmState {
   deals: Deal[];
   icps: ICP[];
   articles: Article[];
+  activities: Activity[];
   isLoading: boolean;
   initialize: () => Promise<void>;
   addLeads: (newLeads: Lead[]) => void;
@@ -30,6 +31,7 @@ interface CrmState {
   addArticle: (article: Article) => Promise<void>;
   updateArticle: (article: Article) => Promise<void>;
   deleteArticle: (articleId: string) => Promise<void>;
+  addActivity: (activity: Activity) => Promise<void>;
 }
 export const useCrmStore = create<CrmState>()(
   immer((set, get) => ({
@@ -39,19 +41,21 @@ export const useCrmStore = create<CrmState>()(
     deals: [],
     icps: [],
     articles: [],
+    activities: [],
     isLoading: true,
     initialize: async () => {
       set({ isLoading: true });
       try {
-        const [contacts, companies, deals, icps, leads, articles] = await Promise.all([
+        const [contacts, companies, deals, icps, leads, articles, activities] = await Promise.all([
           apiService.getAll<Contact>('contacts'),
           apiService.getAll<Company>('companies'),
           apiService.getAll<Deal>('deals'),
           apiService.getAll<ICP>('icps'),
           apiService.getAll<Lead>('leads'),
           apiService.getAll<Article>('articles'),
+          apiService.getAll<Activity>('activities'),
         ]);
-        set({ contacts, companies, deals, icps, leads, articles, isLoading: false });
+        set({ contacts, companies, deals, icps, leads, articles, activities, isLoading: false });
       } catch (error) {
         console.error("Failed to initialize CRM store:", error);
         set({ isLoading: false });
@@ -146,6 +150,10 @@ export const useCrmStore = create<CrmState>()(
     deleteArticle: async (articleId) => {
       await apiService.delete('articles', articleId);
       set((state) => { state.articles = state.articles.filter(a => a.id !== articleId); });
+    },
+    addActivity: async (activity) => {
+      const newActivity = await apiService.create('activities', activity);
+      set((state) => { state.activities.unshift(newActivity); });
     },
   }))
 );

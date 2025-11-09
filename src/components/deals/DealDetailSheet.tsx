@@ -5,10 +5,12 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Deal, Contact, Company } from '@/lib/types';
-import { MessageSquarePlus, DollarSign, Calendar, User, Building, Mail, Phone, StickyNote, Briefcase, Edit, Trash2 } from 'lucide-react';
+import { MessageSquarePlus, DollarSign, Calendar, User, Building, Mail, Phone, StickyNote, Briefcase, Edit, Trash2, Zap } from 'lucide-react';
 import { AiActionModal } from '../shared/AiActionModal';
 import { chatService } from '@/lib/chat';
-import { ACTIVITIES } from '@/lib/mock-data';
+import { useCrmStore } from '@/stores/crm-store';
+import { Progress } from '@/components/ui/progress';
+import { cn } from '@/lib/utils';
 interface DealDetailSheetProps {
   deal: Deal | null;
   contact: Contact | null;
@@ -28,6 +30,7 @@ export function DealDetailSheet({ deal, contact, company, isOpen, onOpenChange, 
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
   const [aiContent, setAiContent] = useState('');
   const [isAiLoading, setIsAiLoading] = useState(false);
+  const activities = useCrmStore(s => s.activities);
   const handleDraftEmail = async () => {
     if (!deal || !contact || !company) return;
     setIsAiModalOpen(true);
@@ -40,7 +43,12 @@ export function DealDetailSheet({ deal, contact, company, isOpen, onOpenChange, 
     setIsAiLoading(false);
   };
   if (!deal) return null;
-  const dealActivities = ACTIVITIES.filter(a => a.dealId === deal.id);
+  const dealActivities = activities.filter(a => a.dealId === deal.id);
+  const getScoreColor = (score: number) => {
+    if (score > 75) return 'bg-green-500';
+    if (score > 50) return 'bg-yellow-500';
+    return 'bg-red-500';
+  };
   return (
     <>
       <Sheet open={isOpen} onOpenChange={onOpenChange}>
@@ -81,6 +89,16 @@ export function DealDetailSheet({ deal, contact, company, isOpen, onOpenChange, 
                   <span className="text-momentum-dark-slate mr-2">Close Date:</span>
                   <span>{new Date(deal.closeDate).toLocaleDateString()}</span>
                 </div>
+                {deal.momentumScore && (
+                  <div className="flex items-center text-sm">
+                    <Zap className="w-4 h-4 mr-3 text-momentum-dark-slate" />
+                    <span className="text-momentum-dark-slate mr-2">Momentum Score:</span>
+                    <div className="flex items-center gap-2 w-1/2">
+                      <Progress value={deal.momentumScore} className="w-full h-2" indicatorClassName={getScoreColor(deal.momentumScore)} />
+                      <span className="font-semibold text-momentum-slate">{deal.momentumScore}</span>
+                    </div>
+                  </div>
+                )}
               </div>
               <Separator />
               <div className="space-y-4">

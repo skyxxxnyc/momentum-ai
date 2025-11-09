@@ -1,9 +1,9 @@
 import { DurableObject } from 'cloudflare:workers';
 import type { Env } from './core-utils';
-import { Contact, Company, Deal, ICP, Lead, Article } from '../src/lib/types';
-import { CONTACTS, COMPANIES, DEALS, ICPS, LEADS, ARTICLES } from '../src/lib/mock-data';
-type CrmEntity = 'contacts' | 'companies' | 'deals' | 'icps' | 'leads' | 'articles';
-type CrmData = Contact | Company | Deal | ICP | Lead | Article;
+import { Contact, Company, Deal, ICP, Lead, Article, Activity } from '../src/lib/types';
+import { CONTACTS, COMPANIES, DEALS, ICPS, LEADS, ARTICLES, ACTIVITIES } from '../src/lib/mock-data';
+type CrmEntity = 'contacts' | 'companies' | 'deals' | 'icps' | 'leads' | 'articles' | 'activities';
+type CrmData = Contact | Company | Deal | ICP | Lead | Article | Activity;
 interface CrmStorage {
   contacts: Contact[];
   companies: Company[];
@@ -11,6 +11,7 @@ interface CrmStorage {
   icps: ICP[];
   leads: Lead[];
   articles: Article[];
+  activities: Activity[];
 }
 export class AppController extends DurableObject<Env> {
   private state: CrmStorage = {
@@ -20,6 +21,7 @@ export class AppController extends DurableObject<Env> {
     icps: [],
     leads: [],
     articles: [],
+    activities: [],
   };
   private loaded = false;
   constructor(ctx: DurableObjectState, env: Env) {
@@ -39,6 +41,7 @@ export class AppController extends DurableObject<Env> {
           icps: ICPS,
           leads: LEADS,
           articles: ARTICLES,
+          activities: ACTIVITIES,
         };
         await this.persist();
       }
