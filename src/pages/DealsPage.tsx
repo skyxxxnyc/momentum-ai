@@ -60,7 +60,7 @@ export function DealsPage() {
   return (
     <div className="h-full flex flex-col">
       <Toaster richColors theme="dark" />
-      <Header>
+      <Header onNewDeal={() => setIsCreateModalOpen(true)}>
         <Button onClick={() => setIsCreateModalOpen(true)}>
           <PlusCircle className="mr-2 h-4 w-4" />
           New Deal

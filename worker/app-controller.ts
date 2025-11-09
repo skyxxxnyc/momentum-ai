@@ -1,9 +1,9 @@
 import { DurableObject } from 'cloudflare:workers';
 import type { Env } from './core-utils';
-import { Contact, Company, Deal, ICP, Lead, Article, Activity, Notification } from '../src/lib/types';
+import { Contact, Company, Deal, ICP, Lead, Article, Activity, Notification, Comment } from '../src/lib/types';
 import { CONTACTS, COMPANIES, DEALS, ICPS, LEADS, ARTICLES, ACTIVITIES } from '../src/lib/mock-data';
-type CrmEntity = 'contacts' | 'companies' | 'deals' | 'icps' | 'leads' | 'articles' | 'activities' | 'notifications';
-type CrmData = Contact | Company | Deal | ICP | Lead | Article | Activity | Notification;
+type CrmEntity = 'contacts' | 'companies' | 'deals' | 'icps' | 'leads' | 'articles' | 'activities' | 'notifications' | 'comments';
+type CrmData = Contact | Company | Deal | ICP | Lead | Article | Activity | Notification | Comment;
 interface CrmStorage {
   contacts: Contact[];
   companies: Company[];
@@ -13,6 +13,7 @@ interface CrmStorage {
   articles: Article[];
   activities: Activity[];
   notifications: Notification[];
+  comments: Comment[];
 }
 export class AppController extends DurableObject<Env> {
   private state: CrmStorage = {
@@ -24,6 +25,7 @@ export class AppController extends DurableObject<Env> {
     articles: [],
     activities: [],
     notifications: [],
+    comments: [],
   };
   private loaded = false;
   constructor(ctx: DurableObjectState, env: Env) {
@@ -33,7 +35,11 @@ export class AppController extends DurableObject<Env> {
     if (!this.loaded) {
       const stored = await this.ctx.storage.get<CrmStorage>('crm_data');
       if (stored && stored.contacts?.length > 0) {
-        this.state = { ...stored, notifications: stored.notifications || [] }; // Ensure notifications array exists for backward compatibility
+        this.state = { 
+          ...stored, 
+          notifications: stored.notifications || [],
+          comments: stored.comments || [],
+        };
       } else {
         // First-time initialization with mock data
         this.state = {
@@ -45,6 +51,7 @@ export class AppController extends DurableObject<Env> {
           articles: ARTICLES,
           activities: ACTIVITIES,
           notifications: [],
+          comments: [],
         };
         await this.persist();
       }

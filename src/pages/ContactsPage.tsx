@@ -109,7 +109,7 @@ export function ContactsPage() {
   return (
     <>
       <Toaster richColors theme="dark" />
-      <Header>
+      <Header onNewContact={() => setIsCreateModalOpen(true)}>
         <Button onClick={() => setIsCreateModalOpen(true)}>
           <PlusCircle className="mr-2 h-4 w-4" />
           New Contact

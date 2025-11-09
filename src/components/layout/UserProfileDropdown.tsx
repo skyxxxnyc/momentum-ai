@@ -8,11 +8,17 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { User, LogOut } from 'lucide-react';
 import { useUserStore } from '@/stores/user-store';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 export function UserProfileDropdown() {
   const user = useUserStore(s => s.user);
+  const navigate = useNavigate();
+  const handleLogout = () => {
+    toast.info("Log out functionality is not implemented in this demo.");
+  };
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -30,12 +36,12 @@ export function UserProfileDropdown() {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
+        <DropdownMenuItem onSelect={() => navigate('/settings')}>
           <User className="mr-2 h-4 w-4" />
           <span>Profile</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem className="text-red-500 focus:bg-red-500/10 focus:text-red-500">
+        <DropdownMenuItem onSelect={handleLogout} className="text-red-500 focus:bg-red-500/10 focus:text-red-500">
           <LogOut className="mr-2 h-4 w-4" />
           <span>Log out</span>
         </DropdownMenuItem>

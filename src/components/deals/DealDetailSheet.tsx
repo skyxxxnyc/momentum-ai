@@ -12,6 +12,7 @@ import { useCrmStore } from '@/stores/crm-store';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
 import { LogActivityForm } from '../shared/LogActivityForm';
+import { DealComments } from './DealComments';
 interface DealDetailSheetProps {
   deal: Deal | null;
   contact: Contact | null;
@@ -59,7 +60,7 @@ export function DealDetailSheet({ deal, contact, company, isOpen, onOpenChange, 
               <div>
                 <SheetTitle className="text-2xl font-bold text-momentum-slate">{deal.title}</SheetTitle>
                 <SheetDescription className="text-momentum-dark-slate">
-                  {company?.name} • Stage: <span className="text-momentum-cyan">{deal.stage}</span>
+                  {company?.name} �� Stage: <span className="text-momentum-cyan">{deal.stage}</span>
                 </SheetDescription>
               </div>
               <div className="flex gap-2">
@@ -73,9 +74,10 @@ export function DealDetailSheet({ deal, contact, company, isOpen, onOpenChange, 
             </div>
           </SheetHeader>
           <Tabs defaultValue="details" className="w-full flex-1 flex flex-col">
-            <TabsList className="grid w-full grid-cols-2 mt-4 px-6">
+            <TabsList className="grid w-full grid-cols-3 mt-4 px-6">
               <TabsTrigger value="details">Details</TabsTrigger>
               <TabsTrigger value="activity">Activity</TabsTrigger>
+              <TabsTrigger value="comments">Comments</TabsTrigger>
             </TabsList>
             <TabsContent value="details" className="flex-1 overflow-y-auto p-6 space-y-6">
               <div className="space-y-4">
@@ -159,6 +161,9 @@ export function DealDetailSheet({ deal, contact, company, isOpen, onOpenChange, 
                   <p className="text-center text-sm text-momentum-dark-slate py-8">No activity recorded for this deal.</p>
                 )}
               </div>
+            </TabsContent>
+            <TabsContent value="comments" className="flex-1 overflow-y-auto p-6">
+              <DealComments dealId={deal.id} />
             </TabsContent>
           </Tabs>
         </SheetContent>

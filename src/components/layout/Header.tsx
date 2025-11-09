@@ -12,8 +12,10 @@ const getTitleFromPath = (path: string) => {
 };
 interface HeaderProps {
   children?: React.ReactNode;
+  onNewDeal?: () => void;
+  onNewContact?: () => void;
 }
-export function Header({ children }: HeaderProps) {
+export function Header({ children, onNewDeal, onNewContact }: HeaderProps) {
   const location = useLocation();
   const [open, setOpen] = React.useState(false);
   return (
@@ -31,7 +33,7 @@ export function Header({ children }: HeaderProps) {
           <UserProfileDropdown />
         </div>
       </header>
-      <CommandPalette open={open} setOpen={setOpen} />
+      <CommandPalette open={open} setOpen={setOpen} onNewDeal={onNewDeal} onNewContact={onNewContact} />
     </>
   );
 }

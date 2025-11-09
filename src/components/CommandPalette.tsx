@@ -1,14 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator } from '@/components/ui/command';
-import { LayoutDashboard, Handshake, Users, MessageSquare, PlusCircle, Building, FileText, Contact, Briefcase, BookOpen, Target, ListFilter } from 'lucide-react';
+import { LayoutDashboard, Handshake, Users, MessageSquare, PlusCircle, Building, Contact, Briefcase, BookOpen, Target, ListFilter } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { DEALS, CONTACTS, COMPANIES } from '@/lib/mock-data';
+import { useCrmStore } from '@/stores/crm-store';
 interface CommandPaletteProps {
   open: boolean;
   setOpen: (open: boolean) => void;
+  onNewDeal?: () => void;
+  onNewContact?: () => void;
 }
-export function CommandPalette({ open, setOpen }: CommandPaletteProps) {
+export function CommandPalette({ open, setOpen, onNewDeal, onNewContact }: CommandPaletteProps) {
   const navigate = useNavigate();
+  const deals = useCrmStore(s => s.deals);
+  const contacts = useCrmStore(s => s.contacts);
+  const companies = useCrmStore(s => s.companies);
   const [search, setSearch] = useState('');
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
@@ -24,9 +29,9 @@ export function CommandPalette({ open, setOpen }: CommandPaletteProps) {
     setOpen(false);
     command();
   };
-  const filteredDeals = search ? DEALS.filter(d => d.title.toLowerCase().includes(search.toLowerCase())).slice(0, 3) : [];
-  const filteredContacts = search ? CONTACTS.filter(c => c.name.toLowerCase().includes(search.toLowerCase())).slice(0, 3) : [];
-  const filteredCompanies = search ? COMPANIES.filter(co => co.name.toLowerCase().includes(search.toLowerCase())).slice(0, 3) : [];
+  const filteredDeals = search ? deals.filter(d => d.title.toLowerCase().includes(search.toLowerCase())).slice(0, 3) : [];
+  const filteredContacts = search ? contacts.filter(c => c.name.toLowerCase().includes(search.toLowerCase())).slice(0, 3) : [];
+  const filteredCompanies = search ? companies.filter(co => co.name.toLowerCase().includes(search.toLowerCase())).slice(0, 3) : [];
   return (
     <CommandDialog open={open} onOpenChange={setOpen}>
       <CommandInput
@@ -94,11 +99,11 @@ export function CommandPalette({ open, setOpen }: CommandPaletteProps) {
         </CommandGroup>
         <CommandSeparator />
         <CommandGroup heading="Actions">
-          <CommandItem onSelect={() => runCommand(() => console.log('New Deal'))}>
+          <CommandItem onSelect={() => runCommand(() => onNewDeal?.())} disabled={!onNewDeal}>
             <PlusCircle className="mr-2 h-4 w-4" />
             <span>New Deal</span>
           </CommandItem>
-          <CommandItem onSelect={() => runCommand(() => console.log('New Contact'))}>
+          <CommandItem onSelect={() => runCommand(() => onNewContact?.())} disabled={!onNewContact}>
             <PlusCircle className="mr-2 h-4 w-4" />
             <span>New Contact</span>
           </CommandItem>

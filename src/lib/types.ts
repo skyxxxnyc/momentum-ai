@@ -71,3 +71,12 @@ export interface Notification {
   dealId?: string;
   contactId?: string;
 }
+export interface Comment {
+  id: string;
+  dealId: string;
+  userId: string;
+  userName: string;
+  userAvatar: string;
+  content: string;
+  createdAt: string;
+}
