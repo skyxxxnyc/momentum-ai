@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { User } from '@/lib/types';
-export interface UserProfile extends User {}
+export type UserProfile = User;
 interface UserPreferences {
   emailNotifications: boolean;
   dashboardLayout: string[];

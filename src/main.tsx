@@ -59,7 +59,7 @@ createRoot(document.getElementById('root')!).render(
     <ErrorBoundary>
       <AppInitializer>
         <RouterProvider router={router} />
-      </App-Initializer>
+      </AppInitializer>
     </ErrorBoundary>
   </StrictMode>,
 )
