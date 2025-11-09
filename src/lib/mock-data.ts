@@ -1,4 +1,4 @@
-import { Company, Contact, Deal, Stage, Activity } from './types';
+import { Company, Contact, Deal, Stage, Activity, Article } from './types';
 import { faker } from '@faker-js/faker';
 const generateAvatar = (seed: string) => `https://api.dicebear.com/8.x/avataaars/svg?seed=${seed}`;
 const generateLogo = (name: string) => `https://logo.clearbit.com/${name.toLowerCase().replace(/ /g, '')}.com`;
@@ -53,3 +53,12 @@ export const ACTIVITIES: Activity[] = Array.from({ length: 100 }, (_, i): Activi
         dealId: deal.id,
     }
 });
+const ARTICLE_CATEGORIES = ['Sales Tips', 'AI Best Practices', 'Platform Guide', 'Productivity Hacks', 'Industry News'];
+export const ARTICLES: Article[] = Array.from({ length: 25 }, (_, i): Article => ({
+  id: `article-${i}`,
+  title: faker.lorem.sentence({ min: 5, max: 10 }),
+  category: faker.helpers.arrayElement(ARTICLE_CATEGORIES),
+  summary: faker.lorem.paragraph({ min: 2, max: 4 }),
+  imageUrl: `https://source.unsplash.com/random/400x300?sig=${i}&query=business,technology`,
+  content: faker.lorem.paragraphs(5),
+}));

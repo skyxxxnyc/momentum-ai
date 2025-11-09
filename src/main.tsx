@@ -17,6 +17,7 @@ import { ContactsPage } from '@/pages/ContactsPage';
 import { CompaniesPage } from '@/pages/CompaniesPage';
 import { AiChat } from '@/components/AiChat';
 import { SettingsPage } from '@/pages/SettingsPage';
+import { KnowledgeHubPage } from '@/pages/KnowledgeHubPage';
 const router = createBrowserRouter([
   {
     path: "/",
@@ -27,6 +28,7 @@ const router = createBrowserRouter([
       { path: "deals", element: <DealsPage /> },
       { path: "contacts", element: <ContactsPage /> },
       { path: "companies", element: <CompaniesPage /> },
+      { path: "knowledge-hub", element: <KnowledgeHubPage /> },
       { path: "chat", element: <AiChat /> },
       { path: "settings", element: <SettingsPage /> },
     ]

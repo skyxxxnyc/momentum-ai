@@ -34,3 +34,11 @@ export interface Activity {
   contactId: string;
   dealId?: string;
 }
+export interface Article {
+  id: string;
+  title: string;
+  category: string;
+  summary: string;
+  imageUrl: string;
+  content: string;
+}

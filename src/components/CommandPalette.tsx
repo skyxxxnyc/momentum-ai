@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator } from '@/components/ui/command';
-import { LayoutDashboard, Handshake, Users, MessageSquare, PlusCircle, Building, FileText, Contact, Briefcase } from 'lucide-react';
+import { LayoutDashboard, Handshake, Users, MessageSquare, PlusCircle, Building, FileText, Contact, Briefcase, BookOpen } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { DEALS, CONTACTS, COMPANIES } from '@/lib/mock-data';
 interface CommandPaletteProps {
@@ -29,8 +29,8 @@ export function CommandPalette({ open, setOpen }: CommandPaletteProps) {
   const filteredCompanies = search ? COMPANIES.filter(co => co.name.toLowerCase().includes(search.toLowerCase())).slice(0, 3) : [];
   return (
     <CommandDialog open={open} onOpenChange={setOpen}>
-      <CommandInput 
-        placeholder="Type a command or search..." 
+      <CommandInput
+        placeholder="Type a command or search..."
         value={search}
         onValueChange={setSearch}
       />
@@ -74,6 +74,10 @@ export function CommandPalette({ open, setOpen }: CommandPaletteProps) {
            <CommandItem onSelect={() => runCommand(() => navigate('/companies'))}>
             <Building className="mr-2 h-4 w-4" />
             <span>Companies</span>
+          </CommandItem>
+          <CommandItem onSelect={() => runCommand(() => navigate('/knowledge-hub'))}>
+            <BookOpen className="mr-2 h-4 w-4" />
+            <span>Knowledge Hub</span>
           </CommandItem>
           <CommandItem onSelect={() => runCommand(() => navigate('/chat'))}>
             <MessageSquare className="mr-2 h-4 w-4" />
