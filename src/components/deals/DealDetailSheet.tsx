@@ -4,18 +4,19 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Deal, Contact, Company, Activity } from '@/lib/types';
-import { MessageSquarePlus, DollarSign, Calendar, User, Building, Mail, Phone, StickyNote, Briefcase } from 'lucide-react';
+import { Deal, Contact, Company } from '@/lib/types';
+import { MessageSquarePlus, DollarSign, Calendar, User, Building, Mail, Phone, StickyNote, Briefcase, Edit, Trash2 } from 'lucide-react';
 import { AiActionModal } from '../shared/AiActionModal';
 import { chatService } from '@/lib/chat';
 import { ACTIVITIES } from '@/lib/mock-data';
-import { ScrollArea } from '../ui/scroll-area';
 interface DealDetailSheetProps {
   deal: Deal | null;
   contact: Contact | null;
   company: Company | null;
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
+  onEdit: (deal: Deal) => void;
+  onDelete: (dealId: string) => void;
 }
 const activityIcons = {
   Email: Mail,
@@ -23,7 +24,7 @@ const activityIcons = {
   Meeting: Briefcase,
   Note: StickyNote,
 };
-export function DealDetailSheet({ deal, contact, company, isOpen, onOpenChange }: DealDetailSheetProps) {
+export function DealDetailSheet({ deal, contact, company, isOpen, onOpenChange, onEdit, onDelete }: DealDetailSheetProps) {
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
   const [aiContent, setAiContent] = useState('');
   const [isAiLoading, setIsAiLoading] = useState(false);
@@ -32,7 +33,7 @@ export function DealDetailSheet({ deal, contact, company, isOpen, onOpenChange }
     setIsAiModalOpen(true);
     setIsAiLoading(true);
     setAiContent('');
-    const prompt = `Draft a professional follow-up email to ${contact.name} (${contact.title} at ${company.name}) regarding the "${deal.title}" deal, which is currently in the '${deal.stage}' stage. The deal value is $${deal.value}. Keep it concise and aim to move the deal to the next stage.`;
+    const prompt = `Draft a professional follow-up email to ${contact.name} (${contact.title} at ${company.name}) regarding the "${deal.title}" deal, which is currently in the '${deal.stage}' stage. The deal value is ${deal.value}. Keep it concise and aim to move the deal to the next stage.`;
     await chatService.sendMessage(prompt, undefined, (chunk) => {
       setAiContent(prev => prev + chunk);
     });
@@ -45,10 +46,22 @@ export function DealDetailSheet({ deal, contact, company, isOpen, onOpenChange }
       <Sheet open={isOpen} onOpenChange={onOpenChange}>
         <SheetContent className="w-[400px] sm:w-[540px] bg-card border-l border-border/50 text-momentum-slate p-0 flex flex-col">
           <SheetHeader className="p-6 pb-0">
-            <SheetTitle className="text-2xl font-bold text-momentum-slate">{deal.title}</SheetTitle>
-            <SheetDescription className="text-momentum-dark-slate">
-              {company?.name} • Stage: <span className="text-momentum-cyan">{deal.stage}</span>
-            </SheetDescription>
+            <div className="flex justify-between items-start">
+              <div>
+                <SheetTitle className="text-2xl font-bold text-momentum-slate">{deal.title}</SheetTitle>
+                <SheetDescription className="text-momentum-dark-slate">
+                  {company?.name} • Stage: <span className="text-momentum-cyan">{deal.stage}</span>
+                </SheetDescription>
+              </div>
+              <div className="flex gap-2">
+                <Button variant="outline" size="icon" onClick={() => onEdit(deal)}>
+                  <Edit className="h-4 w-4" />
+                </Button>
+                <Button variant="destructive" size="icon" onClick={() => onDelete(deal.id)}>
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
           </SheetHeader>
           <Tabs defaultValue="details" className="w-full flex-1 flex flex-col">
             <TabsList className="grid w-full grid-cols-2 mt-4 px-6">
