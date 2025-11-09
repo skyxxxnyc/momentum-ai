@@ -12,7 +12,9 @@ interface CrmState {
   activities: Activity[];
   notifications: Notification[];
   isLoading: boolean;
+  selectedDealId: string | null;
   initialize: () => Promise<void>;
+  setSelectedDealId: (dealId: string | null) => void;
   addLeads: (newLeads: Lead[]) => void;
   deleteLead: (leadId: string) => Promise<void>;
   convertLead: (leadId: string) => Promise<void>;
@@ -47,6 +49,7 @@ export const useCrmStore = create<CrmState>()(
     activities: [],
     notifications: [],
     isLoading: true,
+    selectedDealId: null,
     initialize: async () => {
       set({ isLoading: true });
       try {
@@ -66,6 +69,7 @@ export const useCrmStore = create<CrmState>()(
         set({ isLoading: false });
       }
     },
+    setSelectedDealId: (dealId) => set({ selectedDealId: dealId }),
     addLeads: (newLeads) => set((state) => { state.leads.unshift(...newLeads); }),
     deleteLead: async (leadId) => {
       await apiService.delete('leads', leadId);

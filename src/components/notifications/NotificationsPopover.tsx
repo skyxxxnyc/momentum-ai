@@ -7,15 +7,24 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
+import { useNavigate } from 'react-router-dom';
 const notificationIcons = {
   reminder: Zap,
   suggestion: Lightbulb,
   ai_advice: MessageSquare,
 };
 export function NotificationsPopover() {
+  const navigate = useNavigate();
   const notifications = useCrmStore(s => s.notifications);
   const markAllAsRead = useCrmStore(s => s.markAllNotificationsAsRead);
+  const setSelectedDealId = useCrmStore(s => s.setSelectedDealId);
   const unreadCount = notifications.filter(n => !n.isRead).length;
+  const handleNotificationClick = (notification: typeof notifications[0]) => {
+    if (notification.dealId) {
+      navigate('/deals');
+      setSelectedDealId(notification.dealId);
+    }
+  };
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -46,7 +55,15 @@ export function NotificationsPopover() {
             notifications.map(notification => {
               const Icon = notificationIcons[notification.type];
               return (
-                <div key={notification.id} className={cn("p-4 flex items-start gap-4 hover:bg-accent", !notification.isRead && "bg-accent/50")}>
+                <div
+                  key={notification.id}
+                  onClick={() => handleNotificationClick(notification)}
+                  className={cn(
+                    "p-4 flex items-start gap-4",
+                    !notification.isRead && "bg-accent/50",
+                    notification.dealId ? "cursor-pointer hover:bg-accent" : ""
+                  )}
+                >
                   <div className="mt-1">
                     <Icon className="h-5 w-5 text-momentum-cyan" />
                   </div>

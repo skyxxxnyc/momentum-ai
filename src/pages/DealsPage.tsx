@@ -17,13 +17,14 @@ export function DealsPage() {
   const addDeal = useCrmStore(s => s.addDeal);
   const updateDeal = useCrmStore(s => s.updateDeal);
   const deleteDeal = useCrmStore(s => s.deleteDeal);
-  const [selectedDeal, setSelectedDeal] = useState<Deal | null>(null);
-  const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const selectedDealId = useCrmStore(s => s.selectedDealId);
+  const setSelectedDealId = useCrmStore(s => s.setSelectedDealId);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [dealToEdit, setDealToEdit] = useState<Deal | null>(null);
+  const selectedDeal = deals.find(d => d.id === selectedDealId) || null;
   const handleSelectDeal = (deal: Deal) => {
-    setSelectedDeal(deal);
-    setIsSheetOpen(true);
+    setSelectedDealId(deal.id);
   };
   const handleDealCreated = async (newDeal: Deal) => {
     const promise = addDeal(newDeal);
@@ -40,9 +41,6 @@ export function DealsPage() {
       success: 'Deal updated successfully!',
       error: 'Failed to update deal.',
     });
-    if (selectedDeal?.id === updatedDeal.id) {
-      setSelectedDeal(updatedDeal);
-    }
   };
   const handleDeleteDeal = async (dealId: string) => {
     const promise = deleteDeal(dealId);
@@ -51,11 +49,10 @@ export function DealsPage() {
       success: 'Deal deleted.',
       error: 'Failed to delete deal.',
     });
-    setIsSheetOpen(false);
-    setSelectedDeal(null);
+    setSelectedDealId(null);
   };
   const handleEditDeal = (deal: Deal) => {
-    setSelectedDeal(deal);
+    setDealToEdit(deal);
     setIsEditModalOpen(true);
   };
   const selectedContact = selectedDeal ? contacts.find(c => c.id === selectedDeal.contactId) || null : null;
@@ -79,8 +76,8 @@ export function DealsPage() {
         />
       </div>
       <DealDetailSheet
-        isOpen={isSheetOpen}
-        onOpenChange={setIsSheetOpen}
+        isOpen={!!selectedDealId}
+        onOpenChange={(open) => !open && setSelectedDealId(null)}
         deal={selectedDeal}
         contact={selectedContact}
         company={selectedCompany}
@@ -95,7 +92,7 @@ export function DealsPage() {
       <EditDealModal
         isOpen={isEditModalOpen}
         onOpenChange={setIsEditModalOpen}
-        deal={selectedDeal}
+        deal={dealToEdit}
         onDealUpdated={handleUpdateDeal}
       />
     </div>

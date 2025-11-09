@@ -33,7 +33,7 @@ export class AppController extends DurableObject<Env> {
     if (!this.loaded) {
       const stored = await this.ctx.storage.get<CrmStorage>('crm_data');
       if (stored && stored.contacts?.length > 0) {
-        this.state = { notifications: [], ...stored }; // Ensure notifications array exists
+        this.state = { ...stored, notifications: stored.notifications || [] }; // Ensure notifications array exists for backward compatibility
       } else {
         // First-time initialization with mock data
         this.state = {
@@ -101,9 +101,10 @@ export class AppController extends DurableObject<Env> {
   }
   private async handleNotificationsRequest(request: Request, id: string): Promise<Response> {
     switch (request.method) {
-      case 'GET':
+      case 'GET': {
         const sortedNotifications = this.state.notifications.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
         return Response.json({ success: true, data: sortedNotifications });
+      }
       case 'POST':
         if (id === 'generate') {
           const newNotifications = this.generateNotifications();

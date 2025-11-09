@@ -1,9 +1,10 @@
 import React from 'react';
-import { Search, User } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLocation } from 'react-router-dom';
 import { CommandPalette } from '../CommandPalette';
 import { NotificationsPopover } from '../notifications/NotificationsPopover';
+import { UserProfileDropdown } from './UserProfileDropdown';
 const getTitleFromPath = (path: string) => {
   if (path === '/') return 'Dashboard';
   const title = path.replace('/', '').charAt(0).toUpperCase() + path.slice(2);
@@ -27,9 +28,7 @@ export function Header({ children }: HeaderProps) {
             <Search className="h-5 w-5 text-momentum-dark-slate" />
           </Button>
           <NotificationsPopover />
-          <Button variant="ghost" size="icon">
-            <User className="h-5 w-5 text-momentum-dark-slate" />
-          </Button>
+          <UserProfileDropdown />
         </div>
       </header>
       <CommandPalette open={open} setOpen={setOpen} />
