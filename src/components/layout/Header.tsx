@@ -1,8 +1,9 @@
 import React from 'react';
-import { Search, Bell, User } from 'lucide-react';
+import { Search, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLocation } from 'react-router-dom';
 import { CommandPalette } from '../CommandPalette';
+import { NotificationsPopover } from '../notifications/NotificationsPopover';
 const getTitleFromPath = (path: string) => {
   if (path === '/') return 'Dashboard';
   const title = path.replace('/', '').charAt(0).toUpperCase() + path.slice(2);
@@ -21,13 +22,11 @@ export function Header({ children }: HeaderProps) {
           <h1 className="text-2xl font-bold text-momentum-slate">{getTitleFromPath(location.pathname)}</h1>
           {children}
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2">
           <Button variant="ghost" size="icon" onClick={() => setOpen(true)}>
             <Search className="h-5 w-5 text-momentum-dark-slate" />
           </Button>
-          <Button variant="ghost" size="icon">
-            <Bell className="h-5 w-5 text-momentum-dark-slate" />
-          </Button>
+          <NotificationsPopover />
           <Button variant="ghost" size="icon">
             <User className="h-5 w-5 text-momentum-dark-slate" />
           </Button>

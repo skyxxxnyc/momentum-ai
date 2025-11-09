@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
-import { Lead, Contact, Company, Deal, ICP, Article, Activity } from '@/lib/types';
+import { Lead, Contact, Company, Deal, ICP, Article, Activity, Notification } from '@/lib/types';
 import apiService from '@/lib/api';
 interface CrmState {
   leads: Lead[];
@@ -10,6 +10,7 @@ interface CrmState {
   icps: ICP[];
   articles: Article[];
   activities: Activity[];
+  notifications: Notification[];
   isLoading: boolean;
   initialize: () => Promise<void>;
   addLeads: (newLeads: Lead[]) => void;
@@ -32,6 +33,8 @@ interface CrmState {
   updateArticle: (article: Article) => Promise<void>;
   deleteArticle: (articleId: string) => Promise<void>;
   addActivity: (activity: Activity) => Promise<void>;
+  generateNotifications: () => Promise<void>;
+  markAllNotificationsAsRead: () => Promise<void>;
 }
 export const useCrmStore = create<CrmState>()(
   immer((set, get) => ({
@@ -42,11 +45,12 @@ export const useCrmStore = create<CrmState>()(
     icps: [],
     articles: [],
     activities: [],
+    notifications: [],
     isLoading: true,
     initialize: async () => {
       set({ isLoading: true });
       try {
-        const [contacts, companies, deals, icps, leads, articles, activities] = await Promise.all([
+        const [contacts, companies, deals, icps, leads, articles, activities, notifications] = await Promise.all([
           apiService.getAll<Contact>('contacts'),
           apiService.getAll<Company>('companies'),
           apiService.getAll<Deal>('deals'),
@@ -54,8 +58,9 @@ export const useCrmStore = create<CrmState>()(
           apiService.getAll<Lead>('leads'),
           apiService.getAll<Article>('articles'),
           apiService.getAll<Activity>('activities'),
+          apiService.getNotifications(),
         ]);
-        set({ contacts, companies, deals, icps, leads, articles, activities, isLoading: false });
+        set({ contacts, companies, deals, icps, leads, articles, activities, notifications, isLoading: false });
       } catch (error) {
         console.error("Failed to initialize CRM store:", error);
         set({ isLoading: false });
@@ -154,6 +159,16 @@ export const useCrmStore = create<CrmState>()(
     addActivity: async (activity) => {
       const newActivity = await apiService.create('activities', activity);
       set((state) => { state.activities.unshift(newActivity); });
+    },
+    generateNotifications: async () => {
+      const newNotifications = await apiService.generateNotifications();
+      set(state => {
+        state.notifications.unshift(...newNotifications);
+      });
+    },
+    markAllNotificationsAsRead: async () => {
+      const updatedNotifications = await apiService.markAllNotificationsAsRead();
+      set({ notifications: updatedNotifications });
     },
   }))
 );

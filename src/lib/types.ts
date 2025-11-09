@@ -62,3 +62,12 @@ export interface Lead {
   location: string;
   status: 'New' | 'Contacted' | 'Qualified';
 }
+export interface Notification {
+  id: string;
+  type: 'reminder' | 'suggestion' | 'ai_advice';
+  message: string;
+  isRead: boolean;
+  createdAt: string;
+  dealId?: string;
+  contactId?: string;
+}

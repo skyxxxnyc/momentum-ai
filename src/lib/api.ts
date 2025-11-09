@@ -1,5 +1,5 @@
-import { Contact, Company, Deal, ICP, Lead, Article } from './types';
-type CrmEntity = Contact | Company | Deal | ICP | Lead | Article;
+import { Contact, Company, Deal, ICP, Lead, Article, Notification, Activity } from './types';
+type CrmEntity = Contact | Company | Deal | ICP | Lead | Article | Activity | Notification;
 const handleResponse = async (response: Response) => {
   if (!response.ok) {
     const errorText = await response.text();
@@ -42,6 +42,17 @@ const apiService = {
     const response = await fetch(`/api/leads/${leadId}/convert`, {
       method: 'POST',
     });
+    return handleResponse(response);
+  },
+  generateNotifications: async (): Promise<Notification[]> => {
+    const response = await fetch('/api/notifications/generate', { method: 'POST' });
+    return handleResponse(response);
+  },
+  getNotifications: async (): Promise<Notification[]> => {
+    return apiService.getAll<Notification>('notifications');
+  },
+  markAllNotificationsAsRead: async (): Promise<Notification[]> => {
+    const response = await fetch('/api/notifications/read', { method: 'PUT' });
     return handleResponse(response);
   },
 };

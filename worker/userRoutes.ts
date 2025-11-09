@@ -54,4 +54,17 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
         const controller = getAppController(c.env);
         return controller.fetch(new Request(c.req.url, c.req.raw));
     });
+    // Notification routes
+    app.get('/api/notifications', (c) => {
+        const controller = getAppController(c.env);
+        return controller.fetch(new Request(c.req.url, c.req.raw));
+    });
+    app.post('/api/notifications/generate', (c) => {
+        const controller = getAppController(c.env);
+        return controller.fetch(new Request(c.req.url, c.req.raw));
+    });
+    app.put('/api/notifications/read', (c) => {
+        const controller = getAppController(c.env);
+        return controller.fetch(new Request(c.req.url, c.req.raw));
+    });
 }
