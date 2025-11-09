@@ -9,22 +9,41 @@ import { EditContactModal } from '@/components/contacts/EditContactModal';
 import { Header } from '@/components/layout/Header';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useCrmStore } from '@/stores/crm-store';
+import { Toaster, toast } from 'sonner';
 export function ContactsPage() {
   const contacts = useCrmStore(s => s.contacts);
   const companies = useCrmStore(s => s.companies);
   const addContact = useCrmStore(s => s.addContact);
   const updateContact = useCrmStore(s => s.updateContact);
   const deleteContact = useCrmStore(s => s.deleteContact);
-  const [isLoading, setIsLoading] = useState(true);
+  const isLoading = useCrmStore(s => s.isLoading);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 500); // Shorter delay as data is now in-memory
-    return () => clearTimeout(timer);
-  }, []);
+  const handleContactCreated = async (newContact: Contact) => {
+    const promise = addContact(newContact);
+    toast.promise(promise, {
+      loading: 'Creating contact...',
+      success: 'Contact created successfully!',
+      error: 'Failed to create contact.',
+    });
+  };
+  const handleUpdateContact = async (updatedContact: Contact) => {
+    const promise = updateContact(updatedContact);
+    toast.promise(promise, {
+      loading: 'Updating contact...',
+      success: 'Contact updated successfully!',
+      error: 'Failed to update contact.',
+    });
+  };
+  const handleDeleteContact = (contactId: string) => {
+    const promise = deleteContact(contactId);
+    toast.promise(promise, {
+      loading: 'Deleting contact...',
+      success: 'Contact deleted.',
+      error: 'Failed to delete contact.',
+    });
+  };
   const handleEditClick = (contact: Contact) => {
     setSelectedContact(contact);
     setIsEditModalOpen(true);
@@ -71,7 +90,7 @@ export function ContactsPage() {
               <Edit className="mr-2 h-4 w-4" />
               <span>Edit</span>
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => deleteContact(item.id)} className="text-red-500">
+            <DropdownMenuItem onClick={() => handleDeleteContact(item.id)} className="text-red-500">
               <Trash2 className="mr-2 h-4 w-4" />
               <span>Delete</span>
             </DropdownMenuItem>
@@ -82,6 +101,7 @@ export function ContactsPage() {
   ];
   return (
     <>
+      <Toaster richColors theme="dark" />
       <Header>
         <Button onClick={() => setIsCreateModalOpen(true)}>
           <PlusCircle className="mr-2 h-4 w-4" />
@@ -94,13 +114,13 @@ export function ContactsPage() {
       <CreateContactModal
         isOpen={isCreateModalOpen}
         onOpenChange={setIsCreateModalOpen}
-        onContactCreated={addContact}
+        onContactCreated={handleContactCreated}
       />
       <EditContactModal
         isOpen={isEditModalOpen}
         onOpenChange={setIsEditModalOpen}
         contact={selectedContact}
-        onContactUpdated={updateContact}
+        onContactUpdated={handleUpdateContact}
       />
     </>
   );

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { DataTable } from '@/components/shared/DataTable';
 import { Company } from '@/lib/types';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -9,21 +9,40 @@ import { CreateCompanyModal } from '@/components/companies/CreateCompanyModal';
 import { EditCompanyModal } from '@/components/companies/EditCompanyModal';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useCrmStore } from '@/stores/crm-store';
+import { Toaster, toast } from 'sonner';
 export function CompaniesPage() {
   const companies = useCrmStore(s => s.companies);
   const addCompany = useCrmStore(s => s.addCompany);
   const updateCompany = useCrmStore(s => s.updateCompany);
   const deleteCompany = useCrmStore(s => s.deleteCompany);
-  const [isLoading, setIsLoading] = useState(true);
+  const isLoading = useCrmStore(s => s.isLoading);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 500);
-    return () => clearTimeout(timer);
-  }, []);
+  const handleCompanyCreated = async (newCompany: Company) => {
+    const promise = addCompany(newCompany);
+    toast.promise(promise, {
+      loading: 'Creating company...',
+      success: 'Company created successfully!',
+      error: 'Failed to create company.',
+    });
+  };
+  const handleUpdateCompany = async (updatedCompany: Company) => {
+    const promise = updateCompany(updatedCompany);
+    toast.promise(promise, {
+      loading: 'Updating company...',
+      success: 'Company updated successfully!',
+      error: 'Failed to update company.',
+    });
+  };
+  const handleDeleteCompany = (companyId: string) => {
+    const promise = deleteCompany(companyId);
+    toast.promise(promise, {
+      loading: 'Deleting company...',
+      success: 'Company deleted.',
+      error: 'Failed to delete company.',
+    });
+  };
   const handleEditClick = (company: Company) => {
     setSelectedCompany(company);
     setIsEditModalOpen(true);
@@ -65,7 +84,7 @@ export function CompaniesPage() {
               <Edit className="mr-2 h-4 w-4" />
               <span>Edit</span>
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => deleteCompany(item.id)} className="text-red-500">
+            <DropdownMenuItem onClick={() => handleDeleteCompany(item.id)} className="text-red-500">
               <Trash2 className="mr-2 h-4 w-4" />
               <span>Delete</span>
             </DropdownMenuItem>
@@ -76,6 +95,7 @@ export function CompaniesPage() {
   ];
   return (
     <>
+      <Toaster richColors theme="dark" />
       <Header>
         <Button onClick={() => setIsCreateModalOpen(true)}>
           <PlusCircle className="mr-2 h-4 w-4" />
@@ -88,13 +108,13 @@ export function CompaniesPage() {
       <CreateCompanyModal
         isOpen={isCreateModalOpen}
         onOpenChange={setIsCreateModalOpen}
-        onCompanyCreated={addCompany}
+        onCompanyCreated={handleCompanyCreated}
       />
       <EditCompanyModal
         isOpen={isEditModalOpen}
         onOpenChange={setIsEditModalOpen}
         company={selectedCompany}
-        onCompanyUpdated={updateCompany}
+        onCompanyUpdated={handleUpdateCompany}
       />
     </>
   );

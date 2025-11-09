@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Header } from '@/components/layout/Header';
 import { DataTable } from '@/components/shared/DataTable';
 import { Lead } from '@/lib/types';
@@ -11,16 +11,22 @@ export function LeadsPage() {
   const leads = useCrmStore(s => s.leads);
   const convertLead = useCrmStore(s => s.convertLead);
   const deleteLead = useCrmStore(s => s.deleteLead);
-  const [isLoading, setIsLoading] = useState(false); // Can be used for async actions
+  const isLoading = useCrmStore(s => s.isLoading);
   const handleConvert = (leadId: string) => {
-    convertLead(leadId);
-    toast.success('Lead converted successfully!', {
-      description: 'A new contact, company, and deal have been created.',
+    const promise = convertLead(leadId);
+    toast.promise(promise, {
+      loading: 'Converting lead...',
+      success: 'Lead converted successfully!',
+      error: 'Failed to convert lead.',
     });
   };
   const handleDelete = (leadId: string) => {
-    deleteLead(leadId);
-    toast.error('Lead deleted.');
+    const promise = deleteLead(leadId);
+    toast.promise(promise, {
+      loading: 'Deleting lead...',
+      success: 'Lead deleted.',
+      error: 'Failed to delete lead.',
+    });
   };
   const columns = [
     { accessor: 'name' as keyof Lead, header: 'Name' },

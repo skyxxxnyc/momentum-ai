@@ -28,14 +28,20 @@ export function IcpPage() {
     setIsModalOpen(true);
   };
   const handleDelete = (id: string) => {
-    deleteIcp(id);
+    const promise = deleteIcp(id);
+    toast.promise(promise, {
+      loading: 'Deleting ICP...',
+      success: 'ICP deleted.',
+      error: 'Failed to delete ICP.',
+    });
   };
-  const handleSave = (icp: ICP) => {
-    if (selectedIcp) {
-      updateIcp(icp);
-    } else {
-      addIcp({ ...icp, id: `icp-${Date.now()}` });
-    }
+  const handleSave = async (icp: ICP) => {
+    const promise = selectedIcp ? updateIcp(icp) : addIcp({ ...icp, id: `icp-${Date.now()}` });
+    toast.promise(promise, {
+      loading: 'Saving ICP...',
+      success: 'ICP saved successfully!',
+      error: 'Failed to save ICP.',
+    });
     setIsModalOpen(false);
     setSelectedIcp(null);
   };

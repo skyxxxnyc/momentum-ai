@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { PlusCircle } from 'lucide-react';
 import { Header } from '@/components/layout/Header';
 import { useCrmStore } from '@/stores/crm-store';
+import { Toaster, toast } from 'sonner';
 export function DealsPage() {
   const deals = useCrmStore(s => s.deals);
   const setDeals = useCrmStore(s => s.setDeals);
@@ -24,14 +25,32 @@ export function DealsPage() {
     setSelectedDeal(deal);
     setIsSheetOpen(true);
   };
-  const handleUpdateDeal = (updatedDeal: Deal) => {
-    updateDeal(updatedDeal);
+  const handleDealCreated = async (newDeal: Deal) => {
+    const promise = addDeal(newDeal);
+    toast.promise(promise, {
+      loading: 'Creating deal...',
+      success: 'Deal created successfully!',
+      error: 'Failed to create deal.',
+    });
+  };
+  const handleUpdateDeal = async (updatedDeal: Deal) => {
+    const promise = updateDeal(updatedDeal);
+    toast.promise(promise, {
+      loading: 'Updating deal...',
+      success: 'Deal updated successfully!',
+      error: 'Failed to update deal.',
+    });
     if (selectedDeal?.id === updatedDeal.id) {
       setSelectedDeal(updatedDeal);
     }
   };
-  const handleDeleteDeal = (dealId: string) => {
-    deleteDeal(dealId);
+  const handleDeleteDeal = async (dealId: string) => {
+    const promise = deleteDeal(dealId);
+    toast.promise(promise, {
+      loading: 'Deleting deal...',
+      success: 'Deal deleted.',
+      error: 'Failed to delete deal.',
+    });
     setIsSheetOpen(false);
     setSelectedDeal(null);
   };
@@ -43,6 +62,7 @@ export function DealsPage() {
   const selectedCompany = selectedDeal ? companies.find(c => c.id === selectedDeal.companyId) || null : null;
   return (
     <div className="h-full flex flex-col">
+      <Toaster richColors theme="dark" />
       <Header>
         <Button onClick={() => setIsCreateModalOpen(true)}>
           <PlusCircle className="mr-2 h-4 w-4" />
@@ -70,7 +90,7 @@ export function DealsPage() {
       <CreateDealModal
         isOpen={isCreateModalOpen}
         onOpenChange={setIsCreateModalOpen}
-        onDealCreated={addDeal}
+        onDealCreated={handleDealCreated}
       />
       <EditDealModal
         isOpen={isEditModalOpen}

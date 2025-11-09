@@ -1,5 +1,5 @@
-import { Contact, Company, Deal, ICP, Lead, Article, Notification, Activity, Comment, User } from './types';
-type CrmEntity = Contact | Company | Deal | ICP | Lead | Article | Activity | Notification | Comment | User;
+import { Contact, Company, Deal, ICP, Lead } from './types';
+type CrmEntity = Contact | Company | Deal | ICP | Lead;
 const handleResponse = async (response: Response) => {
   if (!response.ok) {
     const errorText = await response.text();
@@ -16,7 +16,7 @@ const apiService = {
     const response = await fetch(`/api/${entity}`);
     return handleResponse(response);
   },
-  create: async <T extends { id: string }>(entity: string, data: T): Promise<T> => {
+  create: async <T extends { id: string }>(entity: string, data: Omit<T, 'id'>): Promise<T> => {
     const response = await fetch(`/api/${entity}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -42,17 +42,6 @@ const apiService = {
     const response = await fetch(`/api/leads/${leadId}/convert`, {
       method: 'POST',
     });
-    return handleResponse(response);
-  },
-  generateNotifications: async (): Promise<Notification[]> => {
-    const response = await fetch('/api/notifications/generate', { method: 'POST' });
-    return handleResponse(response);
-  },
-  getNotifications: async (): Promise<Notification[]> => {
-    return apiService.getAll<Notification>('notifications');
-  },
-  markAllNotificationsAsRead: async (): Promise<Notification[]> => {
-    const response = await fetch('/api/notifications/read', { method: 'PUT' });
     return handleResponse(response);
   },
 };

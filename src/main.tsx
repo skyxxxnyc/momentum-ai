@@ -1,7 +1,7 @@
 import '@/lib/errorReporter';
 import { enableMapSet } from "immer";
 enableMapSet();
-import { StrictMode } from 'react'
+import React, { StrictMode, useEffect } from 'react'
 import { createRoot } from 'react-dom/client'
 import {
   createBrowserRouter,
@@ -21,6 +21,7 @@ import { KnowledgeHubPage } from '@/pages/KnowledgeHubPage';
 import { ArticleDetailPage } from '@/pages/ArticleDetailPage';
 import { IcpPage } from '@/pages/IcpPage';
 import { LeadsPage } from '@/pages/LeadsPage';
+import { useCrmStore } from './stores/crm-store';
 const router = createBrowserRouter([
   {
     path: "/",
@@ -40,11 +41,19 @@ const router = createBrowserRouter([
     ]
   },
 ]);
-// Do not touch this code
+function AppInitializer({ children }: { children: React.ReactNode }) {
+  const initialize = useCrmStore(s => s.initialize);
+  useEffect(() => {
+    initialize();
+  }, [initialize]);
+  return <>{children}</>;
+}
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ErrorBoundary>
-      <RouterProvider router={router} />
+      <AppInitializer>
+        <RouterProvider router={router} />
+      </AppInitializer>
     </ErrorBoundary>
   </StrictMode>,
 )
