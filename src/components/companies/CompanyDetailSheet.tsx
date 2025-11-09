@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Company } from '@/lib/types';
 import { Mail, Phone, StickyNote, Briefcase, Building, Users, MapPin, BarChart } from 'lucide-react';
 import { useCrmStore } from '@/stores/crm-store';
+import { LogActivityForm } from '../shared/LogActivityForm';
 interface CompanyDetailSheetProps {
   company: Company | null;
   isOpen: boolean;
@@ -21,7 +22,7 @@ export function CompanyDetailSheet({ company, isOpen, onOpenChange }: CompanyDet
   const activities = useCrmStore(s => s.activities);
   const contacts = useCrmStore(s => s.contacts);
   if (!company) return null;
-  const companyActivities = activities.filter(a => a.companyId === company.id);
+  const companyActivities = activities.filter(a => a.companyId === company.id).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   const companyContacts = contacts.filter(c => c.companyId === company.id);
   return (
     <Sheet open={isOpen} onOpenChange={onOpenChange}>
@@ -83,6 +84,8 @@ export function CompanyDetailSheet({ company, isOpen, onOpenChange }: CompanyDet
             </div>
           </TabsContent>
           <TabsContent value="activity" className="flex-1 overflow-y-auto p-6">
+            <LogActivityForm companyId={company.id} contactId={companyContacts[0]?.id} />
+            <Separator className="my-6" />
             <div className="space-y-6">
               {companyActivities.length > 0 ? companyActivities.map(activity => {
                 const Icon = activityIcons[activity.type];

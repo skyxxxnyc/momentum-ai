@@ -63,7 +63,7 @@ function DealCard({ deal, contact, company, isOverlay, onClick }: DealCardProps)
               </div>
               <span>{deal.momentumScore}</span>
             </div>
-            <Progress value={deal.momentumScore} className="h-1.5" indicatorClassName={getScoreColor(deal.momentumScore)} />
+            <Progress value={deal.momentumScore} className={cn("h-1.5", getScoreColor(deal.momentumScore))} />
           </div>
         )}
         {deal.lastActivity && (

@@ -3,7 +3,6 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useCrmStore } from '@/stores/crm-store';
-import { useUserStore } from '@/stores/user-store';
 import { Activity } from '@/lib/types';
 import { toast } from 'sonner';
 interface LogActivityFormProps {
@@ -15,7 +14,6 @@ export function LogActivityForm({ dealId, contactId, companyId }: LogActivityFor
   const [activityType, setActivityType] = useState<'Note' | 'Call' | 'Email' | 'Meeting'>('Note');
   const [subject, setSubject] = useState('');
   const addActivity = useCrmStore(s => s.addActivity);
-  const user = useUserStore(s => s.user);
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!subject.trim() || !contactId) {
@@ -30,7 +28,7 @@ export function LogActivityForm({ dealId, contactId, companyId }: LogActivityFor
       contactId,
       dealId,
       companyId,
-      userId: user.id,
+      userId: 'user-1', // Placeholder for authenticated user
     };
     const promise = addActivity(newActivity);
     toast.promise(promise, {

@@ -11,6 +11,7 @@ import { chatService } from '@/lib/chat';
 import { useCrmStore } from '@/stores/crm-store';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
+import { LogActivityForm } from '../shared/LogActivityForm';
 interface DealDetailSheetProps {
   deal: Deal | null;
   contact: Contact | null;
@@ -43,7 +44,7 @@ export function DealDetailSheet({ deal, contact, company, isOpen, onOpenChange, 
     setIsAiLoading(false);
   };
   if (!deal) return null;
-  const dealActivities = activities.filter(a => a.dealId === deal.id);
+  const dealActivities = activities.filter(a => a.dealId === deal.id).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   const getScoreColor = (score: number) => {
     if (score > 75) return 'bg-green-500';
     if (score > 50) return 'bg-yellow-500';
@@ -94,7 +95,7 @@ export function DealDetailSheet({ deal, contact, company, isOpen, onOpenChange, 
                     <Zap className="w-4 h-4 mr-3 text-momentum-dark-slate" />
                     <span className="text-momentum-dark-slate mr-2">Momentum Score:</span>
                     <div className="flex items-center gap-2 w-1/2">
-                      <Progress value={deal.momentumScore} className="w-full h-2" indicatorClassName={getScoreColor(deal.momentumScore)} />
+                      <Progress value={deal.momentumScore} className={cn("w-full h-2", getScoreColor(deal.momentumScore))} />
                       <span className="font-semibold text-momentum-slate">{deal.momentumScore}</span>
                     </div>
                   </div>
@@ -135,6 +136,8 @@ export function DealDetailSheet({ deal, contact, company, isOpen, onOpenChange, 
                </div>
             </TabsContent>
             <TabsContent value="activity" className="flex-1 overflow-y-auto p-6">
+              <LogActivityForm dealId={deal.id} contactId={deal.contactId} companyId={deal.companyId} />
+              <Separator className="my-6" />
               <div className="space-y-6">
                 {dealActivities.length > 0 ? dealActivities.map(activity => {
                   const Icon = activityIcons[activity.type];
