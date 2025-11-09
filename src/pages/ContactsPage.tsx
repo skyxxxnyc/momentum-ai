@@ -4,14 +4,18 @@ import { CONTACTS, COMPANIES } from '@/lib/mock-data';
 import { Contact } from '@/lib/types';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { PlusCircle } from 'lucide-react';
+import { PlusCircle, MoreHorizontal, Edit, Trash2 } from 'lucide-react';
 import { CreateContactModal } from '@/components/contacts/CreateContactModal';
 import { Header } from '@/components/layout/Header';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 export function ContactsPage() {
   const [contacts, setContacts] = useState<Contact[]>(CONTACTS);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const handleContactCreated = (newContact: Contact) => {
     setContacts(prev => [newContact, ...prev]);
+  };
+  const handleDeleteContact = (contactId: string) => {
+    setContacts(prev => prev.filter(contact => contact.id !== contactId));
   };
   const columns = [
     {
@@ -38,6 +42,30 @@ export function ContactsPage() {
       accessor: 'lastContacted' as keyof Contact,
       header: 'Last Contacted',
       cell: (item: Contact) => new Date(item.lastContacted).toLocaleDateString(),
+    },
+    {
+      accessor: 'actions' as 'actions',
+      header: 'Actions',
+      cell: (item: Contact) => (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="h-8 w-8 p-0">
+              <span className="sr-only">Open menu</span>
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={() => console.log('Edit', item.id)}>
+              <Edit className="mr-2 h-4 w-4" />
+              <span>Edit</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleDeleteContact(item.id)} className="text-red-500">
+              <Trash2 className="mr-2 h-4 w-4" />
+              <span>Delete</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ),
     },
   ];
   return (

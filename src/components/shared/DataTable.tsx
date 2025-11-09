@@ -3,13 +3,14 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight, ArrowUpDown } from 'lucide-react';
+interface Column<T> {
+  accessor: keyof T | 'actions';
+  header: string;
+  cell?: (item: T) => React.ReactNode;
+}
 interface DataTableProps<T> {
   data: T[];
-  columns: {
-    accessor: keyof T;
-    header: string;
-    cell?: (item: T) => React.ReactNode;
-  }[];
+  columns: Column<T>[];
 }
 export function DataTable<T extends { id: string }>({ data, columns }: DataTableProps<T>) {
   const [filter, setFilter] = useState('');
@@ -41,7 +42,8 @@ export function DataTable<T extends { id: string }>({ data, columns }: DataTable
     currentPage * rowsPerPage
   );
   const totalPages = Math.ceil(sortedData.length / rowsPerPage);
-  const requestSort = (key: keyof T) => {
+  const requestSort = (key: keyof T | 'actions') => {
+    if (key === 'actions') return;
     let direction: 'asc' | 'desc' = 'asc';
     if (sortConfig && sortConfig.key === key && sortConfig.direction === 'asc') {
       direction = 'desc';
@@ -62,10 +64,14 @@ export function DataTable<T extends { id: string }>({ data, columns }: DataTable
             <TableRow>
               {columns.map((col) => (
                 <TableHead key={String(col.accessor)}>
-                  <Button variant="ghost" onClick={() => requestSort(col.accessor)}>
-                    {col.header}
-                    <ArrowUpDown className="ml-2 h-4 w-4" />
-                  </Button>
+                  {col.accessor !== 'actions' ? (
+                    <Button variant="ghost" onClick={() => requestSort(col.accessor)}>
+                      {col.header}
+                      <ArrowUpDown className="ml-2 h-4 w-4" />
+                    </Button>
+                  ) : (
+                    <span className="pl-4">{col.header}</span>
+                  )}
                 </TableHead>
               ))}
             </TableRow>
