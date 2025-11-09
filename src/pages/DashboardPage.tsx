@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line } from 'recharts';
 import { DollarSign, Handshake, Target, Activity as ActivityIcon } from 'lucide-react';
@@ -9,6 +9,8 @@ import { arrayMove, SortableContext, rectSortingStrategy } from '@dnd-kit/sortab
 import { useUserStore } from '@/stores/user-store';
 import { DashboardWidget } from '@/components/dashboard/DashboardWidget';
 import { useCrmStore } from '@/stores/crm-store';
+import { chatService } from '@/lib/chat';
+import { ForecastChart } from '@/components/dashboard/ForecastChart';
 const KpiCard = ({ item }: { item: any }) => (
   <Link to={item.link}>
     <Card className="transition-all duration-200 hover:shadow-lg hover:-translate-y-1 h-full">
@@ -73,6 +75,40 @@ export function DashboardPage() {
   const deals = useCrmStore(s => s.deals);
   const dashboardLayout = useUserStore(s => s.preferences.dashboardLayout);
   const setDashboardLayout = useUserStore(s => s.setDashboardLayout);
+  const [forecastData, setForecastData] = useState([]);
+  const [isForecastLoading, setIsForecastLoading] = useState(true);
+  useEffect(() => {
+    const fetchForecast = async () => {
+      setIsForecastLoading(true);
+      const prompt = `
+        Based on a fictional SaaS company's sales data, generate a revenue forecast for the next 6 months.
+        The current month's revenue is approximately $150,000.
+        Assume a positive but fluctuating growth trend.
+        Provide the response as a JSON array of objects, where each object has "month" (e.g., "Jan", "Feb") and "forecast" (a number).
+        Do not include any other text, just the JSON array.
+      `;
+      let aiResponse = '';
+      await chatService.sendMessage(prompt, undefined, (chunk) => {
+        aiResponse += chunk;
+      });
+      try {
+        const data = JSON.parse(aiResponse);
+        if (Array.isArray(data)) {
+          setForecastData(data);
+        }
+      } catch (e) {
+        console.error("Failed to parse forecast data", e);
+        // Fallback data on error
+        setForecastData([
+          { month: 'Jan', forecast: 160000 }, { month: 'Feb', forecast: 175000 },
+          { month: 'Mar', forecast: 170000 }, { month: 'Apr', forecast: 190000 },
+          { month: 'May', forecast: 210000 }, { month: 'Jun', forecast: 230000 },
+        ]);
+      }
+      setIsForecastLoading(false);
+    };
+    fetchForecast();
+  }, []);
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }));
   const kpiData = useMemo(() => {
     const pipelineValue = deals.reduce((sum, deal) => sum + deal.value, 0);
@@ -99,7 +135,8 @@ export function DashboardPage() {
     ...kpiData.reduce((acc, item) => ({ ...acc, [item.id]: <KpiCard item={item} /> }), {}),
     'chart-pipeline': <PipelineChart data={pipelineChartData} />,
     'chart-activity': <ActivityChart />,
-  }), [kpiData, pipelineChartData]);
+    'chart-forecast': <ForecastChart data={forecastData} isLoading={isForecastLoading} />,
+  }), [kpiData, pipelineChartData, forecastData, isForecastLoading]);
   const sortedWidgets = useMemo(() => {
     return dashboardLayout.map(id => ({
       id,

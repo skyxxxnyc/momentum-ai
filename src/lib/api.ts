@@ -1,5 +1,5 @@
-import { Contact, Company, Deal, ICP, Lead, Article, Notification, Activity, Comment } from './types';
-type CrmEntity = Contact | Company | Deal | ICP | Lead | Article | Activity | Notification | Comment;
+import { Contact, Company, Deal, ICP, Lead, Article, Notification, Activity, Comment, User } from './types';
+type CrmEntity = Contact | Company | Deal | ICP | Lead | Article | Activity | Notification | Comment | User;
 const handleResponse = async (response: Response) => {
   if (!response.ok) {
     const errorText = await response.text();

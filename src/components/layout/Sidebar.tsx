@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Handshake, Users, Building, MessageSquare, Settings, BookOpen, Target, ListFilter, ShieldCheck } from 'lucide-react';
+import { LayoutDashboard, Handshake, Users, Building, MessageSquare, Settings, BookOpen, Target, ListFilter, ShieldCheck, Users2 } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 const navItems = [
@@ -10,6 +10,7 @@ const navItems = [
   { to: '/contacts', icon: Users, label: 'Contacts' },
   { to: '/companies', icon: Building, label: 'Companies' },
   { to: '/icps', icon: Target, label: 'ICPs' },
+  { to: '/team', icon: Users2, label: 'Team' },
   { to: '/knowledge-hub', icon: BookOpen, label: 'Knowledge Hub' },
   { to: '/chat', icon: MessageSquare, label: 'AI Agent' },
 ];

@@ -24,9 +24,9 @@ export function DealComments({ dealId }: DealCommentsProps) {
     const comment: Comment = {
       id: `comment-${Date.now()}`,
       dealId,
-      userId: 'user-1', // Placeholder
+      userId: user.id,
       userName: user.name,
-      userAvatar: `https://api.dicebear.com/8.x/avataaars/svg?seed=${user.name}`,
+      userAvatar: user.avatarUrl,
       content: newComment.trim(),
       createdAt: new Date().toISOString(),
     };
@@ -42,6 +42,7 @@ export function DealComments({ dealId }: DealCommentsProps) {
     <div className="space-y-6">
       <form onSubmit={handleSubmit} className="flex items-start gap-4">
         <Avatar className="h-10 w-10">
+          <AvatarImage src={user.avatarUrl} alt={user.name} />
           <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
         </Avatar>
         <div className="flex-1 space-y-2">

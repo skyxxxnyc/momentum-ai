@@ -24,6 +24,7 @@ import { LeadsPage } from '@/pages/LeadsPage';
 import { AppInitializer } from './components/AppInitializer';
 import { ArticleListPage } from './pages/admin/ArticleListPage';
 import { ArticleEditorPage } from './pages/admin/ArticleEditorPage';
+import { TeamPage } from './pages/TeamPage';
 const router = createBrowserRouter([
   {
     path: "/",
@@ -40,6 +41,7 @@ const router = createBrowserRouter([
       { path: "knowledge-hub/:articleId", element: <ArticleDetailPage /> },
       { path: "chat", element: <AiChat /> },
       { path: "settings", element: <SettingsPage /> },
+      { path: "team", element: <TeamPage /> },
       { path: "admin/articles", element: <ArticleListPage /> },
       { path: "admin/articles/new", element: <ArticleEditorPage /> },
       { path: "admin/articles/edit/:articleId", element: <ArticleEditorPage /> },

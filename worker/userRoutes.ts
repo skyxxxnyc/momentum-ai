@@ -25,7 +25,7 @@ export function coreRoutes(app: Hono<{ Bindings: Env }>) {
     });
 }
 export function userRoutes(app: Hono<{ Bindings: Env }>) {
-    const entities = ['contacts', 'companies', 'deals', 'icps', 'leads', 'articles', 'activities', 'comments'];
+    const entities = ['contacts', 'companies', 'deals', 'icps', 'leads', 'articles', 'activities', 'comments', 'users'];
     entities.forEach(entity => {
         const basePath = `/api/${entity}`;
         // GET all

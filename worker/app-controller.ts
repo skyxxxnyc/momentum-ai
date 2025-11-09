@@ -1,9 +1,14 @@
 import { DurableObject } from 'cloudflare:workers';
 import type { Env } from './core-utils';
-import { Contact, Company, Deal, ICP, Lead, Article, Activity, Notification, Comment } from '../src/lib/types';
+import { Contact, Company, Deal, ICP, Lead, Article, Activity, Notification, Comment, User } from '../src/lib/types';
 import { CONTACTS, COMPANIES, DEALS, ICPS, LEADS, ARTICLES, ACTIVITIES } from '../src/lib/mock-data';
-type CrmEntity = 'contacts' | 'companies' | 'deals' | 'icps' | 'leads' | 'articles' | 'activities' | 'notifications' | 'comments';
-type CrmData = Contact | Company | Deal | ICP | Lead | Article | Activity | Notification | Comment;
+const USERS: User[] = [
+    { id: 'user-1', name: 'Alex Johnson', email: 'alex.johnson@momentum.ai', title: 'Sales Director', avatarUrl: 'https://api.dicebear.com/8.x/avataaars/svg?seed=alex' },
+    { id: 'user-2', name: 'Maria Garcia', email: 'maria.garcia@momentum.ai', title: 'Account Executive', avatarUrl: 'https://api.dicebear.com/8.x/avataaars/svg?seed=maria' },
+    { id: 'user-3', name: 'Chen Wei', email: 'chen.wei@momentum.ai', title: 'Sales Development Rep', avatarUrl: 'https://api.dicebear.com/8.x/avataaars/svg?seed=chen' },
+];
+type CrmEntity = 'contacts' | 'companies' | 'deals' | 'icps' | 'leads' | 'articles' | 'activities' | 'notifications' | 'comments' | 'users';
+type CrmData = Contact | Company | Deal | ICP | Lead | Article | Activity | Notification | Comment | User;
 interface CrmStorage {
   contacts: Contact[];
   companies: Company[];
@@ -14,6 +19,7 @@ interface CrmStorage {
   activities: Activity[];
   notifications: Notification[];
   comments: Comment[];
+  users: User[];
 }
 export class AppController extends DurableObject<Env> {
   private state: CrmStorage = {
@@ -26,6 +32,7 @@ export class AppController extends DurableObject<Env> {
     activities: [],
     notifications: [],
     comments: [],
+    users: [],
   };
   private loaded = false;
   constructor(ctx: DurableObjectState, env: Env) {
@@ -39,6 +46,7 @@ export class AppController extends DurableObject<Env> {
           ...stored,
           notifications: stored.notifications || [],
           comments: stored.comments || [],
+          users: stored.users || USERS,
         };
       } else {
         // First-time initialization with mock data
@@ -52,6 +60,7 @@ export class AppController extends DurableObject<Env> {
           activities: ACTIVITIES,
           notifications: [],
           comments: [],
+          users: USERS,
         };
         await this.persist();
       }
