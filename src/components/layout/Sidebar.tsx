@@ -1,27 +1,16 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Handshake, Users, Building, MessageSquare, Settings, BookOpen, Target, ListFilter, ShieldCheck, Users2, LayoutGrid, FileText, CheckSquare, TrendingUp, BarChart3 } from 'lucide-react';
+import { LayoutDashboard, Handshake, Users, Building, MessageSquare, Settings } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 const navItems = [
   { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
-  { to: '/my-hub', icon: LayoutGrid, label: 'My Hub' },
   { to: '/deals', icon: Handshake, label: 'Deals' },
-  { to: '/leads', icon: ListFilter, label: 'Leads' },
-  { to: '/contacts', icon: Users, label: 'Contacts' },
-  { to: '/companies', icon: Building, label: 'Companies' },
-  { to: '/tasks', icon: CheckSquare, label: 'Tasks' },
-  { to: '/goals', icon: TrendingUp, label: 'Goals' },
-  { to: '/reporting', icon: BarChart3, label: 'Reporting' },
-  { to: '/icps', icon: Target, label: 'ICPs' },
-  { to: '/team', icon: Users2, label: 'Team' },
-  { to: '/sales-collateral', icon: FileText, label: 'Sales Collateral' },
-  { to: '/knowledge-hub', icon: BookOpen, label: 'Knowledge Hub' },
+  { to: '/contacts', icon: Users, label: 'Contacts & Companies' },
   { to: '/chat', icon: MessageSquare, label: 'AI Agent' },
 ];
 const bottomItems = [
     { to: '/settings', icon: Settings, label: 'Settings' },
-    { to: '/admin/articles', icon: ShieldCheck, label: 'Admin' },
 ]
 export function Sidebar() {
   return (

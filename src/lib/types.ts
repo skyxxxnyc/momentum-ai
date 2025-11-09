@@ -1,5 +1,4 @@
 export type Stage = 'Lead' | 'Contacted' | 'Qualified' | 'Proposal' | 'Negotiation' | 'Closed-Won' | 'Closed-Lost';
-export type TaskStatus = 'To Do' | 'In Progress' | 'Done';
 export interface Contact {
   id: string;
   name: string;
@@ -8,8 +7,6 @@ export interface Contact {
   companyId: string;
   avatarUrl?: string;
   lastContacted: string;
-  relationshipStrength?: number;
-  referredById?: string;
 }
 export interface Company {
   id: string;
@@ -17,9 +14,7 @@ export interface Company {
   industry: string;
   employees: number;
   location: string;
-  website: string;
   logoUrl?: string;
-  relationshipStrength?: number;
 }
 export interface Deal {
   id: string;
@@ -28,11 +23,7 @@ export interface Deal {
   stage: Stage;
   contactId: string;
   companyId: string;
-  ownerId: string;
   closeDate: string;
-  lastActivity?: string;
-  momentumScore?: number;
-  healthStatus?: 'on_track' | 'needs_attention' | 'at_risk';
 }
 export interface Activity {
   id: string;
@@ -40,77 +31,4 @@ export interface Activity {
   subject: string;
   date: string;
   contactId: string;
-  dealId?: string;
-  userId: string;
-  companyId: string;
-}
-export interface Article {
-  id: string;
-  title: string;
-  category: string;
-  summary: string;
-  imageUrl: string;
-  content: string;
-}
-export interface ICP {
-  id: string;
-  name: string;
-  industries: string[];
-  companySize: [number, number];
-  location: string;
-  keywords: string[];
-}
-export interface Lead {
-  id: string;
-  name: string;
-  title: string;
-  companyName: string;
-  email: string;
-  location: string;
-  status: 'New' | 'Contacted' | 'Qualified';
-  leadScore: number;
-}
-export interface Notification {
-  id: string;
-  type: 'reminder' | 'suggestion' | 'ai_advice';
-  message: string;
-  isRead: boolean;
-  createdAt: string;
-  dealId?: string;
-  contactId?: string;
-}
-export interface Comment {
-  id: string;
-  dealId: string;
-  userId: string;
-  userName: string;
-  userAvatar: string;
-  content: string;
-  createdAt: string;
-}
-export interface User {
-  id: string;
-  name: string;
-  email: string;
-  title: string;
-  avatarUrl: string;
-}
-export interface Task {
-  id: string;
-  title: string;
-  dueDate: string;
-  status: TaskStatus;
-  ownerId: string;
-  dealId?: string;
-  contactId?: string;
-  companyId?: string;
-}
-export interface Goal {
-  id: string;
-  userId: string;
-  type: 'revenue' | 'deals_won';
-  targetValue: number;
-  currentValue: number;
-  startDate: string;
-  endDate: string;
 }

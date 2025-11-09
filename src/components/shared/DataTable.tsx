@@ -3,20 +3,15 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight, ArrowUpDown } from 'lucide-react';
-import { Skeleton } from '@/components/ui/skeleton';
-import { cn } from '@/lib/utils';
-interface Column<T> {
-  accessor: keyof T | 'actions';
-  header: string;
-  cell?: (item: T) => React.ReactNode;
-}
 interface DataTableProps<T> {
   data: T[];
-  columns: Column<T>[];
-  isLoading?: boolean;
-  onRowClick?: (item: T) => void;
+  columns: {
+    accessor: keyof T;
+    header: string;
+    cell?: (item: T) => React.ReactNode;
+  }[];
 }
-export function DataTable<T extends { id: string }>({ data, columns, isLoading = false, onRowClick }: DataTableProps<T>) {
+export function DataTable<T extends { id: string }>({ data, columns }: DataTableProps<T>) {
   const [filter, setFilter] = useState('');
   const [sortConfig, setSortConfig] = useState<{ key: keyof T; direction: 'asc' | 'desc' } | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -46,8 +41,7 @@ export function DataTable<T extends { id: string }>({ data, columns, isLoading =
     currentPage * rowsPerPage
   );
   const totalPages = Math.ceil(sortedData.length / rowsPerPage);
-  const requestSort = (key: keyof T | 'actions') => {
-    if (key === 'actions') return;
+  const requestSort = (key: keyof T) => {
     let direction: 'asc' | 'desc' = 'asc';
     if (sortConfig && sortConfig.key === key && sortConfig.direction === 'asc') {
       direction = 'desc';
@@ -68,50 +62,24 @@ export function DataTable<T extends { id: string }>({ data, columns, isLoading =
             <TableRow>
               {columns.map((col) => (
                 <TableHead key={String(col.accessor)}>
-                  {col.accessor !== 'actions' ? (
-                    <Button variant="ghost" onClick={() => requestSort(col.accessor)}>
-                      {col.header}
-                      <ArrowUpDown className="ml-2 h-4 w-4" />
-                    </Button>
-                  ) : (
-                    <span className="pl-4">{col.header}</span>
-                  )}
+                  <Button variant="ghost" onClick={() => requestSort(col.accessor)}>
+                    {col.header}
+                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                  </Button>
                 </TableHead>
               ))}
             </TableRow>
           </TableHeader>
           <TableBody>
-            {isLoading ? (
-              Array.from({ length: rowsPerPage }).map((_, index) => (
-                <TableRow key={index}>
-                  {columns.map((col) => (
-                    <TableCell key={String(col.accessor)}>
-                      <Skeleton className="h-6 w-full" />
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : paginatedData.length > 0 ? (
-              paginatedData.map((item) => (
-                <TableRow
-                  key={item.id}
-                  onClick={() => onRowClick?.(item)}
-                  className={cn(onRowClick && 'cursor-pointer hover:bg-accent')}
-                >
-                  {columns.map((col) => (
-                    <TableCell key={String(col.accessor)}>
-                      {col.cell ? col.cell(item) : String(item[col.accessor as keyof T])}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
-                  No results found.
-                </TableCell>
+            {paginatedData.map((item) => (
+              <TableRow key={item.id}>
+                {columns.map((col) => (
+                  <TableCell key={String(col.accessor)}>
+                    {col.cell ? col.cell(item) : String(item[col.accessor])}
+                  </TableCell>
+                ))}
               </TableRow>
-            )}
+            ))}
           </TableBody>
         </Table>
       </div>

@@ -1,13 +1,12 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { Send, Bot, User, Wrench, Loader2 } from 'lucide-react';
+import { Send, Bot, User, Clock, Wrench, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { chatService, renderToolCall } from '@/lib/chat';
+import { chatService, formatTime, renderToolCall } from '@/lib/chat';
 import type { ChatState } from '../../worker/types';
 import { cn } from '@/lib/utils';
-import { Header } from './layout/Header';
 export function AiChat() {
   const [chatState, setChatState] = useState<ChatState>({
     messages: [],
@@ -64,7 +63,6 @@ export function AiChat() {
   };
   return (
     <div className="flex flex-col h-full bg-card">
-      <Header />
       <div className="flex-1 overflow-y-auto p-6 space-y-6">
         {chatState.messages.length === 0 && !chatState.isProcessing && (
           <div className="text-center text-momentum-dark-slate h-full flex flex-col justify-center items-center">
@@ -82,7 +80,7 @@ export function AiChat() {
             animate={{ opacity: 1, y: 0 }}
             className={cn('flex items-start gap-4', msg.role === 'user' ? 'justify-end' : 'justify-start')}
           >
-            {msg.role === 'assistant' && <Bot className="w-8 h-8 rounded-full bg-momentum-cyan text-momentum-dark p-1.5 flex-shrink-0" />}
+            {msg.role === 'assistant' && <User className="w-8 h-8 rounded-full bg-momentum-cyan text-momentum-dark p-1.5" />}
             <div className={cn('max-w-[80%] p-4 rounded-2xl', msg.role === 'user' ? 'bg-momentum-cyan text-momentum-dark' : 'bg-accent')}>
               <p className="whitespace-pre-wrap">{msg.content}</p>
               {msg.toolCalls && msg.toolCalls.length > 0 && (
@@ -101,12 +99,12 @@ export function AiChat() {
                 </div>
               )}
             </div>
-            {msg.role === 'user' && <User className="w-8 h-8 rounded-full bg-momentum-dark-slate text-momentum-slate p-1.5 flex-shrink-0" />}
+            {msg.role === 'user' && <User className="w-8 h-8 rounded-full bg-momentum-dark-slate text-momentum-slate p-1.5" />}
           </motion.div>
         ))}
         {chatState.streamingMessage && (
           <div className="flex items-start gap-4 justify-start">
-            <Bot className="w-8 h-8 rounded-full bg-momentum-cyan text-momentum-dark p-1.5 flex-shrink-0" />
+            <Bot className="w-8 h-8 rounded-full bg-momentum-cyan text-momentum-dark p-1.5" />
             <div className="max-w-[80%] p-4 rounded-2xl bg-accent">
               <p className="whitespace-pre-wrap">{chatState.streamingMessage}<span className="animate-pulse">|</span></p>
             </div>

@@ -1,48 +1,23 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line } from 'recharts';
+import { DEALS, ACTIVITIES } from '@/lib/mock-data';
 import { DollarSign, Handshake, Target, Activity as ActivityIcon } from 'lucide-react';
-import { Header } from '@/components/layout/Header';
-import { Link } from 'react-router-dom';
-import { DndContext, closestCenter, DragEndEvent, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
-import { arrayMove, SortableContext, rectSortingStrategy } from '@dnd-kit/sortable';
-import { useUserStore } from '@/stores/user-store';
-import { DashboardWidget } from '@/components/dashboard/DashboardWidget';
-import { useCrmStore } from '@/stores/crm-store';
-import { chatService } from '@/lib/chat';
-import { ForecastChart } from '@/components/dashboard/ForecastChart';
-const KpiCard = ({ item }: { item: any }) => (
-  <Link to={item.link}>
-    <Card className="transition-all duration-200 hover:shadow-lg hover:-translate-y-1 h-full">
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium text-momentum-dark-slate">{item.title}</CardTitle>
-        <item.icon className="h-5 w-5 text-momentum-dark-slate" />
-      </CardHeader>
-      <CardContent>
-        <div className="text-3xl font-bold text-momentum-slate">{item.value}</div>
-        <p className="text-xs text-momentum-dark-slate">{item.change} from last month</p>
-      </CardContent>
-    </Card>
-  </Link>
-);
-const PipelineChart = ({ data }: { data: any[] }) => (
-  <Card className="h-full">
-    <CardHeader>
-      <CardTitle>Pipeline by Stage</CardTitle>
-    </CardHeader>
-    <CardContent>
-      <ResponsiveContainer width="100%" height={300}>
-        <BarChart data={data}>
-          <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-          <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
-          <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `${Number(value) / 1000}k`} />
-          <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--background))', borderColor: 'hsl(var(--border))' }} />
-          <Bar dataKey="value" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
-        </BarChart>
-      </ResponsiveContainer>
-    </CardContent>
-  </Card>
-);
+const kpiData = [
+  { title: 'Pipeline Value', value: '$1.2M', icon: DollarSign, change: '+12%' },
+  { title: 'Deals Won', value: '82', icon: Handshake, change: '+5' },
+  { title: 'Conversion Rate', value: '24%', icon: Target, change: '-1.2%' },
+  { title: 'Activities Logged', value: '452', icon: ActivityIcon, change: '+50' },
+];
+const dealStageData = DEALS.reduce((acc, deal) => {
+  const stage = deal.stage;
+  if (!acc[stage]) {
+    acc[stage] = { name: stage, value: 0 };
+  }
+  acc[stage].value += deal.value;
+  return acc;
+}, {} as Record<string, { name: string; value: number }>);
+const pipelineChartData = Object.values(dealStageData);
 const salesActivityData = Array.from({ length: 12 }, (_, i) => {
     const month = new Date(2023, i, 1).toLocaleString('default', { month: 'short' });
     return {
@@ -51,123 +26,69 @@ const salesActivityData = Array.from({ length: 12 }, (_, i) => {
         activities: Math.floor(Math.random() * 100) + 50,
     };
 });
-const ActivityChart = () => (
-  <Card className="h-full">
-    <CardHeader>
-      <CardTitle>Sales Activity</CardTitle>
-    </CardHeader>
-    <CardContent>
-      <ResponsiveContainer width="100%" height={300}>
-        <LineChart data={salesActivityData}>
-          <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-          <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
-          <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
-          <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--background))', borderColor: 'hsl(var(--border))' }} />
-          <Legend wrapperStyle={{fontSize: "12px"}}/>
-          <Line type="monotone" dataKey="deals" stroke="hsl(var(--primary))" strokeWidth={2} />
-          <Line type="monotone" dataKey="activities" stroke="hsl(var(--foreground))" strokeWidth={2} />
-        </LineChart>
-      </ResponsiveContainer>
-    </CardContent>
-  </Card>
-);
 export function DashboardPage() {
-  const deals = useCrmStore(s => s.deals);
-  const dashboardLayout = useUserStore(s => s.preferences.dashboardLayout);
-  const setDashboardLayout = useUserStore(s => s.setDashboardLayout);
-  const [forecastData, setForecastData] = useState([]);
-  const [isForecastLoading, setIsForecastLoading] = useState(true);
-  useEffect(() => {
-    const fetchForecast = async () => {
-      setIsForecastLoading(true);
-      const prompt = `
-        Based on a fictional SaaS company's sales data, generate a revenue forecast for the next 6 months.
-        The current month's revenue is approximately $150,000.
-        Assume a positive but fluctuating growth trend.
-        Provide the response as a JSON array of objects, where each object has "month" (e.g., "Jan", "Feb") and "forecast" (a number).
-        Do not include any other text, just the JSON array.
-      `;
-      let aiResponse = '';
-      await chatService.sendMessage(prompt, undefined, (chunk) => {
-        aiResponse += chunk;
-      });
-      try {
-        const data = JSON.parse(aiResponse);
-        if (Array.isArray(data)) {
-          setForecastData(data);
-        }
-      } catch (e) {
-        console.error("Failed to parse forecast data", e);
-        // Fallback data on error
-        setForecastData([
-          { month: 'Jan', forecast: 160000 }, { month: 'Feb', forecast: 175000 },
-          { month: 'Mar', forecast: 170000 }, { month: 'Apr', forecast: 190000 },
-          { month: 'May', forecast: 210000 }, { month: 'Jun', forecast: 230000 },
-        ]);
-      }
-      setIsForecastLoading(false);
-    };
-    fetchForecast();
-  }, []);
-  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }));
-  const kpiData = useMemo(() => {
-    const pipelineValue = deals.reduce((sum, deal) => sum + deal.value, 0);
-    const dealsWon = deals.filter(d => d.stage === 'Closed-Won').length;
-    return [
-      { id: 'kpi-pipeline', title: 'Pipeline Value', value: `${(pipelineValue / 1000000).toFixed(1)}M`, icon: DollarSign, change: '+12%', link: '/deals' },
-      { id: 'kpi-deals-won', title: 'Deals Won', value: dealsWon, icon: Handshake, change: '+5', link: '/deals' },
-      { id: 'kpi-conversion', title: 'Conversion Rate', value: '24%', icon: Target, change: '-1.2%', link: '/deals' },
-      { id: 'kpi-activities', title: 'Activities Logged', value: '452', icon: ActivityIcon, change: '+50', link: '/' },
-    ];
-  }, [deals]);
-  const pipelineChartData = useMemo(() => {
-    const dealStageData = deals.reduce((acc, deal) => {
-      const stage = deal.stage;
-      if (!acc[stage]) {
-        acc[stage] = { name: stage, value: 0 };
-      }
-      acc[stage].value += deal.value;
-      return acc;
-    }, {} as Record<string, { name: string; value: number }>);
-    return Object.values(dealStageData);
-  }, [deals]);
-  const allWidgets = useMemo(() => ({
-    ...kpiData.reduce((acc, item) => ({ ...acc, [item.id]: <KpiCard item={item} /> }), {}),
-    'chart-pipeline': <PipelineChart data={pipelineChartData} />,
-    'chart-activity': <ActivityChart />,
-    'chart-forecast': <ForecastChart data={forecastData} isLoading={isForecastLoading} />,
-  }), [kpiData, pipelineChartData, forecastData, isForecastLoading]);
-  const sortedWidgets = useMemo(() => {
-    return dashboardLayout.map(id => ({
-      id,
-      component: allWidgets[id as keyof typeof allWidgets],
-      className: id.startsWith('chart-') ? 'lg:col-span-2' : 'md:col-span-1',
-    })).filter(w => w.component);
-  }, [dashboardLayout, allWidgets]);
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (active.id !== over?.id) {
-      const oldIndex = dashboardLayout.indexOf(active.id as string);
-      const newIndex = dashboardLayout.indexOf(over!.id as string);
-      setDashboardLayout(arrayMove(dashboardLayout, oldIndex, newIndex));
-    }
-  };
   return (
-    <>
-      <Header />
-      <div className="p-4 md:p-8 space-y-8">
-        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-          <SortableContext items={dashboardLayout} strategy={rectSortingStrategy}>
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-              {sortedWidgets.map(widget => (
-                <DashboardWidget key={widget.id} id={widget.id} className={widget.className}>
-                  {widget.component}
-                </DashboardWidget>
-              ))}
-            </div>
-          </SortableContext>
-        </DndContext>
+    <div className="p-4 md:p-8 space-y-8">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        {kpiData.map((kpi) => (
+          <Card key={kpi.title}>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-momentum-dark-slate">{kpi.title}</CardTitle>
+              <kpi.icon className="h-5 w-5 text-momentum-dark-slate" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-momentum-slate">{kpi.value}</div>
+              <p className="text-xs text-momentum-dark-slate">{kpi.change} from last month</p>
+            </CardContent>
+          </Card>
+        ))}
       </div>
-    </>
+      <div className="grid gap-6 lg:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle>Pipeline by Stage</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={pipelineChartData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                <XAxis dataKey="name" stroke="var(--muted-foreground)" fontSize={12} tickLine={false} axisLine={false} />
+                <YAxis stroke="var(--muted-foreground)" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `$${Number(value) / 1000}k`} />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: 'hsl(var(--background))',
+                    borderColor: 'hsl(var(--border))',
+                  }}
+                />
+                <Bar dataKey="value" fill="var(--primary)" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Sales Activity</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={salesActivityData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                <XAxis dataKey="name" stroke="var(--muted-foreground)" fontSize={12} tickLine={false} axisLine={false} />
+                <YAxis stroke="var(--muted-foreground)" fontSize={12} tickLine={false} axisLine={false} />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: 'hsl(var(--background))',
+                    borderColor: 'hsl(var(--border))',
+                  }}
+                />
+                <Legend wrapperStyle={{fontSize: "12px"}}/>
+                <Line type="monotone" dataKey="deals" stroke="var(--primary)" strokeWidth={2} />
+                <Line type="monotone" dataKey="activities" stroke="var(--foreground)" strokeWidth={2} />
+              </LineChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
   );
 }
