@@ -81,7 +81,7 @@ export function DataTable<T extends { id: string }>({ data, columns }: DataTable
               <TableRow key={item.id}>
                 {columns.map((col) => (
                   <TableCell key={String(col.accessor)}>
-                    {col.cell ? col.cell(item) : String(item[col.accessor])}
+                    {col.cell ? col.cell(item) : String(item[col.accessor as keyof T])}
                   </TableCell>
                 ))}
               </TableRow>

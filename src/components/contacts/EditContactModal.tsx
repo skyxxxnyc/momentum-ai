@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useCrmStore } from '@/stores/crm-store';
+import { COMPANIES } from '@/lib/mock-data';
 import { Contact } from '@/lib/types';
 interface EditContactModalProps {
   isOpen: boolean;
@@ -13,20 +13,16 @@ interface EditContactModalProps {
   onContactUpdated: (contact: Contact) => void;
 }
 export function EditContactModal({ isOpen, onOpenChange, contact, onContactUpdated }: EditContactModalProps) {
-  const companies = useCrmStore(s => s.companies);
-  const allContacts = useCrmStore(s => s.contacts);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [title, setTitle] = useState('');
   const [companyId, setCompanyId] = useState('');
-  const [referredById, setReferredById] = useState('');
   useEffect(() => {
     if (contact) {
       setName(contact.name);
       setEmail(contact.email);
       setTitle(contact.title);
       setCompanyId(contact.companyId);
-      setReferredById(contact.referredById || '');
     }
   }, [contact]);
   const handleSubmit = () => {
@@ -37,7 +33,6 @@ export function EditContactModal({ isOpen, onOpenChange, contact, onContactUpdat
       email,
       title,
       companyId,
-      referredById: referredById || undefined,
     };
     onContactUpdated(updatedContact);
     onOpenChange(false);
@@ -69,21 +64,8 @@ export function EditContactModal({ isOpen, onOpenChange, contact, onContactUpdat
                 <SelectValue placeholder="Select a company" />
               </SelectTrigger>
               <SelectContent>
-                {companies.map(company => (
+                {COMPANIES.map(company => (
                   <SelectItem key={company.id} value={company.id}>{company.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="referredBy" className="text-right">Referred By</Label>
-            <Select value={referredById} onValueChange={setReferredById}>
-              <SelectTrigger className="col-span-3 bg-accent">
-                <SelectValue placeholder="Select referrer (optional)" />
-              </SelectTrigger>
-              <SelectContent>
-                {allContacts.filter(c => c.id !== contact?.id).map(c => (
-                  <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
                 ))}
               </SelectContent>
             </Select>

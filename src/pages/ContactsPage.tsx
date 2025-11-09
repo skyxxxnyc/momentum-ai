@@ -6,16 +6,26 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { PlusCircle, MoreHorizontal, Edit, Trash2 } from 'lucide-react';
 import { CreateContactModal } from '@/components/contacts/CreateContactModal';
+import { EditContactModal } from '@/components/contacts/EditContactModal';
 import { Header } from '@/components/layout/Header';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 export function ContactsPage() {
   const [contacts, setContacts] = useState<Contact[]>(CONTACTS);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
   const handleContactCreated = (newContact: Contact) => {
     setContacts(prev => [newContact, ...prev]);
   };
+  const handleUpdateContact = (updatedContact: Contact) => {
+    setContacts(prev => prev.map(c => c.id === updatedContact.id ? updatedContact : c));
+  };
   const handleDeleteContact = (contactId: string) => {
     setContacts(prev => prev.filter(contact => contact.id !== contactId));
+  };
+  const handleEditClick = (contact: Contact) => {
+    setSelectedContact(contact);
+    setIsEditModalOpen(true);
   };
   const columns = [
     {
@@ -44,7 +54,7 @@ export function ContactsPage() {
       cell: (item: Contact) => new Date(item.lastContacted).toLocaleDateString(),
     },
     {
-      accessor: 'actions' as 'actions',
+      accessor: 'actions' as const,
       header: 'Actions',
       cell: (item: Contact) => (
         <DropdownMenu>
@@ -55,7 +65,7 @@ export function ContactsPage() {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => console.log('Edit', item.id)}>
+            <DropdownMenuItem onClick={() => handleEditClick(item)}>
               <Edit className="mr-2 h-4 w-4" />
               <span>Edit</span>
             </DropdownMenuItem>
@@ -83,6 +93,12 @@ export function ContactsPage() {
         isOpen={isCreateModalOpen}
         onOpenChange={setIsCreateModalOpen}
         onContactCreated={handleContactCreated}
+      />
+      <EditContactModal
+        isOpen={isEditModalOpen}
+        onOpenChange={setIsEditModalOpen}
+        contact={selectedContact}
+        onContactUpdated={handleUpdateContact}
       />
     </>
   );

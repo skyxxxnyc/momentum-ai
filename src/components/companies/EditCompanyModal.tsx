@@ -15,25 +15,22 @@ export function EditCompanyModal({ isOpen, onOpenChange, company, onCompanyUpdat
   const [industry, setIndustry] = useState('');
   const [location, setLocation] = useState('');
   const [employees, setEmployees] = useState('');
-  const [website, setWebsite] = useState('');
   useEffect(() => {
     if (company) {
       setName(company.name);
       setIndustry(company.industry);
       setLocation(company.location);
       setEmployees(String(company.employees));
-      setWebsite(company.website);
     }
   }, [company]);
   const handleSubmit = () => {
-    if (!company || !name || !industry || !location || !employees || !website) return;
+    if (!company || !name || !industry || !location || !employees) return;
     const updatedCompany: Company = {
       ...company,
       name,
       industry,
       location,
       employees: parseInt(employees, 10),
-      website,
     };
     onCompanyUpdated(updatedCompany);
     onOpenChange(false);
@@ -61,10 +58,6 @@ export function EditCompanyModal({ isOpen, onOpenChange, company, onCompanyUpdat
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="employees" className="text-right">Employees</Label>
             <Input id="employees" type="number" value={employees} onChange={(e) => setEmployees(e.target.value)} className="col-span-3 bg-accent" />
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="website" className="text-right">Website</Label>
-            <Input id="website" type="url" value={website} onChange={(e) => setWebsite(e.target.value)} className="col-span-3 bg-accent" />
           </div>
         </div>
         <DialogFooter>

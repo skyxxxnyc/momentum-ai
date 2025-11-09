@@ -7,15 +7,25 @@ import { Button } from '@/components/ui/button';
 import { PlusCircle, MoreHorizontal, Edit, Trash2 } from 'lucide-react';
 import { Header } from '@/components/layout/Header';
 import { CreateCompanyModal } from '@/components/companies/CreateCompanyModal';
+import { EditCompanyModal } from '@/components/companies/EditCompanyModal';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 export function CompaniesPage() {
   const [companies, setCompanies] = useState<Company[]>(COMPANIES);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
   const handleCompanyCreated = (newCompany: Company) => {
     setCompanies(prev => [newCompany, ...prev]);
   };
+  const handleUpdateCompany = (updatedCompany: Company) => {
+    setCompanies(prev => prev.map(c => c.id === updatedCompany.id ? updatedCompany : c));
+  };
   const handleDeleteCompany = (companyId: string) => {
     setCompanies(prev => prev.filter(company => company.id !== companyId));
+  };
+  const handleEditClick = (company: Company) => {
+    setSelectedCompany(company);
+    setIsEditModalOpen(true);
   };
   const columns = [
     {
@@ -39,7 +49,7 @@ export function CompaniesPage() {
     },
     { accessor: 'location' as keyof Company, header: 'Location' },
     {
-      accessor: 'actions' as 'actions',
+      accessor: 'actions' as const,
       header: 'Actions',
       cell: (item: Company) => (
         <DropdownMenu>
@@ -50,7 +60,7 @@ export function CompaniesPage() {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => console.log('Edit', item.id)}>
+            <DropdownMenuItem onClick={() => handleEditClick(item)}>
               <Edit className="mr-2 h-4 w-4" />
               <span>Edit</span>
             </DropdownMenuItem>
@@ -78,6 +88,12 @@ export function CompaniesPage() {
         isOpen={isCreateModalOpen}
         onOpenChange={setIsCreateModalOpen}
         onCompanyCreated={handleCompanyCreated}
+      />
+      <EditCompanyModal
+        isOpen={isEditModalOpen}
+        onOpenChange={setIsEditModalOpen}
+        company={selectedCompany}
+        onCompanyUpdated={handleUpdateCompany}
       />
     </>
   );
