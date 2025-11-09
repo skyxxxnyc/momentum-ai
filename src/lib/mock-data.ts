@@ -29,14 +29,19 @@ export const CONTACTS: Contact[] = Array.from({ length: 50 }, (_, i): Contact =>
   };
 });
 export const DEALS: Deal[] = Array.from({ length: 30 }, (_, i): Deal => {
-  const company = faker.helpers.arrayElement(COMPANIES);
-  const contact = faker.helpers.arrayElement(CONTACTS.filter(c => c.companyId === company.id));
+  let company: Company;
+  let companyContacts: Contact[];
+  do {
+    company = faker.helpers.arrayElement(COMPANIES);
+    companyContacts = CONTACTS.filter(c => c.companyId === company.id);
+  } while (companyContacts.length === 0);
+  const contact = faker.helpers.arrayElement(companyContacts);
   return {
     id: `deal-${i}`,
     title: `${company.name} - ${faker.commerce.productName()} Deal`,
     value: faker.number.int({ min: 1000, max: 500000 }),
     stage: faker.helpers.arrayElement(STAGES.filter(s => s !== 'Closed-Won' && s !== 'Closed-Lost')),
-    contactId: contact?.id || CONTACTS[0].id,
+    contactId: contact.id,
     companyId: company.id,
     closeDate: faker.date.future().toISOString(),
     lastActivity: faker.date.recent({ days: 7 }).toLocaleDateString(),
