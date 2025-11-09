@@ -24,6 +24,7 @@ export interface Deal {
   contactId: string;
   companyId: string;
   closeDate: string;
+  lastActivity?: string;
 }
 export interface Activity {
   id: string;
@@ -31,4 +32,5 @@ export interface Activity {
   subject: string;
   date: string;
   contactId: string;
+  dealId?: string;
 }

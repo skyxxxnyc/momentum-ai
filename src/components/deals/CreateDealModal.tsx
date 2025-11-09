@@ -4,8 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useCrmStore } from '@/stores/crm-store';
-import { useUserStore } from '@/stores/user-store';
+import { CONTACTS, COMPANIES, STAGES } from '@/lib/mock-data';
 import { Deal } from '@/lib/types';
 interface CreateDealModalProps {
   isOpen: boolean;
@@ -13,15 +12,12 @@ interface CreateDealModalProps {
   onDealCreated: (deal: Deal) => void;
 }
 export function CreateDealModal({ isOpen, onOpenChange, onDealCreated }: CreateDealModalProps) {
-  const contacts = useCrmStore(s => s.contacts);
-  const companies = useCrmStore(s => s.companies);
-  const user = useUserStore(s => s.user);
   const [title, setTitle] = useState('');
   const [value, setValue] = useState('');
   const [companyId, setCompanyId] = useState('');
   const [contactId, setContactId] = useState('');
   const handleSubmit = () => {
-    if (!title || !value || !companyId || !contactId || !user) return;
+    if (!title || !value || !companyId || !contactId) return;
     const newDeal: Deal = {
       id: `deal-${Date.now()}`,
       title,
@@ -29,7 +25,6 @@ export function CreateDealModal({ isOpen, onOpenChange, onDealCreated }: CreateD
       stage: 'Lead',
       companyId,
       contactId,
-      ownerId: user.id,
       closeDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days from now
     };
     onDealCreated(newDeal);
@@ -40,7 +35,7 @@ export function CreateDealModal({ isOpen, onOpenChange, onDealCreated }: CreateD
     setCompanyId('');
     setContactId('');
   };
-  const filteredContacts = companyId ? contacts.filter(c => c.companyId === companyId) : contacts;
+  const filteredContacts = companyId ? CONTACTS.filter(c => c.companyId === companyId) : CONTACTS;
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px] bg-card border-border/50 text-momentum-slate">
@@ -64,7 +59,7 @@ export function CreateDealModal({ isOpen, onOpenChange, onDealCreated }: CreateD
                 <SelectValue placeholder="Select a company" />
               </SelectTrigger>
               <SelectContent>
-                {companies.map(company => (
+                {COMPANIES.map(company => (
                   <SelectItem key={company.id} value={company.id}>{company.name}</SelectItem>
                 ))}
               </SelectContent>

@@ -1,6 +1,5 @@
 import React from 'react';
 import { Sidebar } from './Sidebar';
-import { Header } from './Header';
 import { Footer } from './Footer';
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -10,8 +9,7 @@ export function AppLayout({ children }: AppLayoutProps) {
     <div className="flex h-screen bg-background text-foreground">
       <Sidebar />
       <div className="flex flex-col flex-1 overflow-hidden">
-        <Header />
-        <main className="flex-1 overflow-y-auto">
+        <main className="flex-1 overflow-y-auto flex flex-col">
           {children}
         </main>
         <Footer />

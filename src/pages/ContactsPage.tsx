@@ -1,9 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { DataTable } from '@/components/shared/DataTable';
 import { CONTACTS, COMPANIES } from '@/lib/mock-data';
 import { Contact } from '@/lib/types';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import { PlusCircle } from 'lucide-react';
+import { CreateContactModal } from '@/components/contacts/CreateContactModal';
+import { Header } from '@/components/layout/Header';
 export function ContactsPage() {
+  const [contacts, setContacts] = useState<Contact[]>(CONTACTS);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const handleContactCreated = (newContact: Contact) => {
+    setContacts(prev => [newContact, ...prev]);
+  };
   const columns = [
     {
       accessor: 'name' as keyof Contact,
@@ -32,8 +41,21 @@ export function ContactsPage() {
     },
   ];
   return (
-    <div className="p-4 md:p-8">
-      <DataTable data={CONTACTS} columns={columns} />
-    </div>
+    <>
+      <Header>
+        <Button onClick={() => setIsCreateModalOpen(true)}>
+          <PlusCircle className="mr-2 h-4 w-4" />
+          New Contact
+        </Button>
+      </Header>
+      <div className="p-4 md:p-8">
+        <DataTable data={contacts} columns={columns} />
+      </div>
+      <CreateContactModal
+        isOpen={isCreateModalOpen}
+        onOpenChange={setIsCreateModalOpen}
+        onContactCreated={handleContactCreated}
+      />
+    </>
   );
 }

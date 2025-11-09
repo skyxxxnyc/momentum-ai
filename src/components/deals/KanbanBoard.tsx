@@ -8,6 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Deal, Stage, Contact, Company } from '@/lib/types';
 import { STAGES } from '@/lib/mock-data';
 import { createPortal } from 'react-dom';
+import { Clock } from 'lucide-react';
 interface DealCardProps {
   deal: Deal;
   contact?: Contact;
@@ -22,18 +23,20 @@ function DealCard({ deal, contact, company, isOverlay, onClick }: DealCardProps)
     transition,
   };
   return (
-    <Card 
-      ref={setNodeRef} 
-      style={style} 
-      {...attributes} 
-      {...listeners} 
+    <Card
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
       onClick={onClick}
-      className={`mb-4 bg-accent cursor-grab active:cursor-grabbing ${isDragging ? 'opacity-50' : ''} ${isOverlay ? 'shadow-lg' : ''}`}
+      className={`mb-4 bg-accent cursor-grab active:cursor-grabbing transition-shadow hover:shadow-lg ${isDragging ? 'opacity-50' : ''} ${isOverlay ? 'shadow-xl' : ''}`}
     >
-      <CardContent className="p-4">
-        <h4 className="font-semibold text-momentum-slate">{deal.title}</h4>
-        <p className="text-sm text-momentum-dark-slate">{company?.name}</p>
-        <div className="flex items-center justify-between mt-2">
+      <CardContent className="p-4 space-y-3">
+        <div>
+            <h4 className="font-semibold text-momentum-slate">{deal.title}</h4>
+            <p className="text-sm text-momentum-dark-slate">{company?.name}</p>
+        </div>
+        <div className="flex items-center justify-between">
           <span className="text-lg font-bold text-momentum-cyan">
             ${deal.value.toLocaleString()}
           </span>
@@ -44,6 +47,12 @@ function DealCard({ deal, contact, company, isOverlay, onClick }: DealCardProps)
             </Avatar>
           )}
         </div>
+        {deal.lastActivity && (
+            <div className="flex items-center text-xs text-momentum-dark-slate">
+                <Clock className="w-3 h-3 mr-1.5" />
+                <span>Last activity: {deal.lastActivity}</span>
+            </div>
+        )}
       </CardContent>
     </Card>
   );
@@ -114,8 +123,8 @@ export function KanbanBoard({ deals, setDeals, contacts, companies, onSelectDeal
     const activeDeal = deals.find(d => d.id === active.id);
     if (!activeDeal) return;
     const overId = over.id;
-    const overStage = STAGES.includes(overId as Stage) 
-      ? overId as Stage 
+    const overStage = STAGES.includes(overId as Stage)
+      ? overId as Stage
       : deals.find(d => d.id === overId)?.stage;
     if (overStage && activeDeal.stage !== overStage) {
       setDeals(prevDeals => {
@@ -157,12 +166,12 @@ export function KanbanBoard({ deals, setDeals, contacts, companies, onSelectDeal
       {createPortal(
         <DragOverlay>
           {activeDeal ? (
-            <DealCard 
-              deal={activeDeal} 
-              contact={activeContact} 
-              company={activeCompany} 
-              isOverlay 
-              onClick={() => {}} 
+            <DealCard
+              deal={activeDeal}
+              contact={activeContact}
+              company={activeCompany}
+              isOverlay
+              onClick={() => {}}
             />
           ) : null}
         </DragOverlay>,

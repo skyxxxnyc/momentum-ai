@@ -39,12 +39,17 @@ export const DEALS: Deal[] = Array.from({ length: 30 }, (_, i): Deal => {
     contactId: contact?.id || CONTACTS[0].id,
     companyId: company.id,
     closeDate: faker.date.future().toISOString(),
+    lastActivity: faker.date.recent({ days: 7 }).toLocaleDateString(),
   };
 });
-export const ACTIVITIES: Activity[] = Array.from({ length: 100 }, (_, i): Activity => ({
-  id: `activity-${i}`,
-  type: faker.helpers.arrayElement(['Call', 'Email', 'Meeting', 'Note']),
-  subject: faker.lorem.sentence(),
-  date: faker.date.recent({ days: 90 }).toISOString(),
-  contactId: faker.helpers.arrayElement(CONTACTS).id,
-}));
+export const ACTIVITIES: Activity[] = Array.from({ length: 100 }, (_, i): Activity => {
+    const deal = faker.helpers.arrayElement(DEALS);
+    return {
+        id: `activity-${i}`,
+        type: faker.helpers.arrayElement(['Call', 'Email', 'Meeting', 'Note']),
+        subject: faker.lorem.sentence(),
+        date: faker.date.recent({ days: 90 }).toISOString(),
+        contactId: deal.contactId,
+        dealId: deal.id,
+    }
+});
