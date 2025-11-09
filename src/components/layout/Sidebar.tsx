@@ -1,11 +1,12 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Handshake, Users, Building, MessageSquare, Settings, BookOpen, Target } from 'lucide-react';
+import { LayoutDashboard, Handshake, Users, Building, MessageSquare, Settings, BookOpen, Target, ListFilter } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 const navItems = [
   { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
   { to: '/deals', icon: Handshake, label: 'Deals' },
+  { to: '/leads', icon: ListFilter, label: 'Leads' },
   { to: '/contacts', icon: Users, label: 'Contacts' },
   { to: '/companies', icon: Building, label: 'Companies' },
   { to: '/icps', icon: Target, label: 'ICPs' },

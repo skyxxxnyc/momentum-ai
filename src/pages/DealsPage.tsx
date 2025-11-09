@@ -3,13 +3,19 @@ import { KanbanBoard } from '@/components/deals/KanbanBoard';
 import { DealDetailSheet } from '@/components/deals/DealDetailSheet';
 import { CreateDealModal } from '@/components/deals/CreateDealModal';
 import { EditDealModal } from '@/components/deals/EditDealModal';
-import { DEALS, CONTACTS, COMPANIES } from '@/lib/mock-data';
 import { Deal } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { PlusCircle } from 'lucide-react';
 import { Header } from '@/components/layout/Header';
+import { useCrmStore } from '@/stores/crm-store';
 export function DealsPage() {
-  const [deals, setDeals] = useState<Deal[]>(DEALS);
+  const deals = useCrmStore(s => s.deals);
+  const setDeals = useCrmStore(s => s.setDeals);
+  const contacts = useCrmStore(s => s.contacts);
+  const companies = useCrmStore(s => s.companies);
+  const addDeal = useCrmStore(s => s.addDeal);
+  const updateDeal = useCrmStore(s => s.updateDeal);
+  const deleteDeal = useCrmStore(s => s.deleteDeal);
   const [selectedDeal, setSelectedDeal] = useState<Deal | null>(null);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -18,17 +24,14 @@ export function DealsPage() {
     setSelectedDeal(deal);
     setIsSheetOpen(true);
   };
-  const handleDealCreated = (newDeal: Deal) => {
-    setDeals(prevDeals => [newDeal, ...prevDeals]);
-  };
   const handleUpdateDeal = (updatedDeal: Deal) => {
-    setDeals(prev => prev.map(d => d.id === updatedDeal.id ? updatedDeal : d));
+    updateDeal(updatedDeal);
     if (selectedDeal?.id === updatedDeal.id) {
       setSelectedDeal(updatedDeal);
     }
   };
   const handleDeleteDeal = (dealId: string) => {
-    setDeals(prev => prev.filter(d => d.id !== dealId));
+    deleteDeal(dealId);
     setIsSheetOpen(false);
     setSelectedDeal(null);
   };
@@ -36,8 +39,8 @@ export function DealsPage() {
     setSelectedDeal(deal);
     setIsEditModalOpen(true);
   };
-  const selectedContact = selectedDeal ? CONTACTS.find(c => c.id === selectedDeal.contactId) || null : null;
-  const selectedCompany = selectedDeal ? COMPANIES.find(c => c.id === selectedDeal.companyId) || null : null;
+  const selectedContact = selectedDeal ? contacts.find(c => c.id === selectedDeal.contactId) || null : null;
+  const selectedCompany = selectedDeal ? companies.find(c => c.id === selectedDeal.companyId) || null : null;
   return (
     <div className="h-full flex flex-col">
       <Header>
@@ -50,8 +53,8 @@ export function DealsPage() {
         <KanbanBoard
           deals={deals}
           setDeals={setDeals}
-          contacts={CONTACTS}
-          companies={COMPANIES}
+          contacts={contacts}
+          companies={companies}
           onSelectDeal={handleSelectDeal}
         />
       </div>
@@ -67,7 +70,7 @@ export function DealsPage() {
       <CreateDealModal
         isOpen={isCreateModalOpen}
         onOpenChange={setIsCreateModalOpen}
-        onDealCreated={handleDealCreated}
+        onDealCreated={addDeal}
       />
       <EditDealModal
         isOpen={isEditModalOpen}

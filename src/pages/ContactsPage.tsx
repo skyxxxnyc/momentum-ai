@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { DataTable } from '@/components/shared/DataTable';
-import { CONTACTS, COMPANIES } from '@/lib/mock-data';
 import { Contact } from '@/lib/types';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -9,28 +8,23 @@ import { CreateContactModal } from '@/components/contacts/CreateContactModal';
 import { EditContactModal } from '@/components/contacts/EditContactModal';
 import { Header } from '@/components/layout/Header';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { useCrmStore } from '@/stores/crm-store';
 export function ContactsPage() {
-  const [contacts, setContacts] = useState<Contact[]>([]);
+  const contacts = useCrmStore(s => s.contacts);
+  const companies = useCrmStore(s => s.companies);
+  const addContact = useCrmStore(s => s.addContact);
+  const updateContact = useCrmStore(s => s.updateContact);
+  const deleteContact = useCrmStore(s => s.deleteContact);
   const [isLoading, setIsLoading] = useState(true);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
   useEffect(() => {
     const timer = setTimeout(() => {
-      setContacts(CONTACTS);
       setIsLoading(false);
-    }, 1000);
+    }, 500); // Shorter delay as data is now in-memory
     return () => clearTimeout(timer);
   }, []);
-  const handleContactCreated = (newContact: Contact) => {
-    setContacts(prev => [newContact, ...prev]);
-  };
-  const handleUpdateContact = (updatedContact: Contact) => {
-    setContacts(prev => prev.map(c => c.id === updatedContact.id ? updatedContact : c));
-  };
-  const handleDeleteContact = (contactId: string) => {
-    setContacts(prev => prev.filter(contact => contact.id !== contactId));
-  };
   const handleEditClick = (contact: Contact) => {
     setSelectedContact(contact);
     setIsEditModalOpen(true);
@@ -54,7 +48,7 @@ export function ContactsPage() {
     {
       accessor: 'companyId' as keyof Contact,
       header: 'Company',
-      cell: (item: Contact) => COMPANIES.find(c => c.id === item.companyId)?.name || 'N/A',
+      cell: (item: Contact) => companies.find(c => c.id === item.companyId)?.name || 'N/A',
     },
     {
       accessor: 'lastContacted' as keyof Contact,
@@ -77,7 +71,7 @@ export function ContactsPage() {
               <Edit className="mr-2 h-4 w-4" />
               <span>Edit</span>
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleDeleteContact(item.id)} className="text-red-500">
+            <DropdownMenuItem onClick={() => deleteContact(item.id)} className="text-red-500">
               <Trash2 className="mr-2 h-4 w-4" />
               <span>Delete</span>
             </DropdownMenuItem>
@@ -100,13 +94,13 @@ export function ContactsPage() {
       <CreateContactModal
         isOpen={isCreateModalOpen}
         onOpenChange={setIsCreateModalOpen}
-        onContactCreated={handleContactCreated}
+        onContactCreated={addContact}
       />
       <EditContactModal
         isOpen={isEditModalOpen}
         onOpenChange={setIsEditModalOpen}
         contact={selectedContact}
-        onContactUpdated={handleUpdateContact}
+        onContactUpdated={updateContact}
       />
     </>
   );

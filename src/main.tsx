@@ -20,6 +20,7 @@ import { SettingsPage } from '@/pages/SettingsPage';
 import { KnowledgeHubPage } from '@/pages/KnowledgeHubPage';
 import { ArticleDetailPage } from '@/pages/ArticleDetailPage';
 import { IcpPage } from '@/pages/IcpPage';
+import { LeadsPage } from '@/pages/LeadsPage';
 const router = createBrowserRouter([
   {
     path: "/",
@@ -28,6 +29,7 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <DashboardPage /> },
       { path: "deals", element: <DealsPage /> },
+      { path: "leads", element: <LeadsPage /> },
       { path: "contacts", element: <ContactsPage /> },
       { path: "companies", element: <CompaniesPage /> },
       { path: "icps", element: <IcpPage /> },

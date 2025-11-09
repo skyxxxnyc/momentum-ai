@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Header } from '@/components/layout/Header';
 import { DataTable } from '@/components/shared/DataTable';
 import { Lead } from '@/lib/types';
@@ -7,49 +7,27 @@ import { Button } from '@/components/ui/button';
 import { MoreHorizontal, Trash2, Zap } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Toaster, toast } from 'sonner';
-import { Badge } from '@/components/ui/badge';
 export function LeadsPage() {
   const leads = useCrmStore(s => s.leads);
   const convertLead = useCrmStore(s => s.convertLead);
   const deleteLead = useCrmStore(s => s.deleteLead);
-  const isLoading = useCrmStore(s => s.isLoading);
+  const [isLoading, setIsLoading] = useState(false); // Can be used for async actions
   const handleConvert = (leadId: string) => {
-    const promise = convertLead(leadId);
-    toast.promise(promise, {
-      loading: 'Converting lead...',
-      success: 'Lead converted successfully!',
-      error: 'Failed to convert lead.',
+    convertLead(leadId);
+    toast.success('Lead converted successfully!', {
+      description: 'A new contact, company, and deal have been created.',
     });
   };
   const handleDelete = (leadId: string) => {
-    const promise = deleteLead(leadId);
-    toast.promise(promise, {
-      loading: 'Deleting lead...',
-      success: 'Lead deleted.',
-      error: 'Failed to delete lead.',
-    });
+    deleteLead(leadId);
+    toast.error('Lead deleted.');
   };
   const columns = [
-    {
-      accessor: 'name' as keyof Lead,
-      header: 'Name',
-      cell: (item: Lead) => (
-        <div className="flex items-center gap-2">
-          <span className="font-medium">{item.name}</span>
-          {item.leadScore > 85 && <Badge className="bg-red-500/20 text-red-400 border-red-500/30 hover:bg-red-500/30">🔥 Hot</Badge>}
-        </div>
-      ),
-    },
+    { accessor: 'name' as keyof Lead, header: 'Name' },
     { accessor: 'title' as keyof Lead, header: 'Title' },
     { accessor: 'companyName' as keyof Lead, header: 'Company' },
     { accessor: 'email' as keyof Lead, header: 'Email' },
-    {
-      accessor: 'leadScore' as keyof Lead,
-      header: 'Score',
-      cell: (item: Lead) => (
-        <div className="font-semibold text-momentum-slate">{item.leadScore}</div>
-      ),
-    },
+    { accessor: 'location' as keyof Lead, header: 'Location' },
     { accessor: 'status' as keyof Lead, header: 'Status' },
     {
       accessor: 'actions' as const,

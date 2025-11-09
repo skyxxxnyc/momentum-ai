@@ -50,3 +50,12 @@ export interface ICP {
   location: string;
   keywords: string[];
 }
+export interface Lead {
+  id: string;
+  name: string;
+  title: string;
+  companyName: string;
+  email: string;
+  location: string;
+  status: 'New' | 'Contacted' | 'Qualified';
+}

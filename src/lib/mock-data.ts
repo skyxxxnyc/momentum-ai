@@ -1,4 +1,4 @@
-import { Company, Contact, Deal, Stage, Activity, Article, ICP } from './types';
+import { Company, Contact, Deal, Stage, Activity, Article, ICP, Lead } from './types';
 import { faker } from '@faker-js/faker';
 const generateAvatar = (seed: string) => `https://api.dicebear.com/8.x/avataaars/svg?seed=${seed}`;
 const generateLogo = (name: string) => `https://logo.clearbit.com/${name.toLowerCase().replace(/ /g, '')}.com`;
@@ -88,3 +88,4 @@ export const ICPS: ICP[] = [
     keywords: ['Omnichannel', 'Personalization', 'Customer Experience'],
   },
 ];
+export const LEADS: Lead[] = [];

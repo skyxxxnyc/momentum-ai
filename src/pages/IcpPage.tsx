@@ -1,15 +1,24 @@
 import React, { useState } from 'react';
 import { Header } from '@/components/layout/Header';
 import { Button } from '@/components/ui/button';
-import { PlusCircle } from 'lucide-react';
-import { ICPS } from '@/lib/mock-data';
-import { ICP } from '@/lib/types';
+import { PlusCircle, Loader2 } from 'lucide-react';
+import { ICP, Lead } from '@/lib/types';
 import { IcpCard } from '@/components/icp/IcpCard';
 import { CreateEditIcpModal } from '@/components/icp/CreateEditIcpModal';
+import { useCrmStore } from '@/stores/crm-store';
+import { chatService } from '@/lib/chat';
+import { useNavigate } from 'react-router-dom';
+import { Toaster, toast } from 'sonner';
 export function IcpPage() {
-  const [icps, setIcps] = useState<ICP[]>(ICPS);
+  const navigate = useNavigate();
+  const icps = useCrmStore(s => s.icps);
+  const addIcp = useCrmStore(s => s.addIcp);
+  const updateIcp = useCrmStore(s => s.updateIcp);
+  const deleteIcp = useCrmStore(s => s.deleteIcp);
+  const addLeads = useCrmStore(s => s.addLeads);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedIcp, setSelectedIcp] = useState<ICP | null>(null);
+  const [isFindingLeads, setIsFindingLeads] = useState<string | null>(null);
   const handleCreateNew = () => {
     setSelectedIcp(null);
     setIsModalOpen(true);
@@ -19,21 +28,60 @@ export function IcpPage() {
     setIsModalOpen(true);
   };
   const handleDelete = (id: string) => {
-    setIcps(prev => prev.filter(icp => icp.id !== id));
+    deleteIcp(id);
   };
   const handleSave = (icp: ICP) => {
     if (selectedIcp) {
-      // Update
-      setIcps(prev => prev.map(i => i.id === icp.id ? icp : i));
+      updateIcp(icp);
     } else {
-      // Create
-      setIcps(prev => [{ ...icp, id: `icp-${Date.now()}` }, ...prev]);
+      addIcp({ ...icp, id: `icp-${Date.now()}` });
     }
     setIsModalOpen(false);
     setSelectedIcp(null);
   };
+  const handleFindLeads = async (icp: ICP) => {
+    setIsFindingLeads(icp.id);
+    toast.info(`Finding leads for "${icp.name}"...`);
+    const prompt = `
+      Based on the following Ideal Customer Profile, generate a list of 5 fictional leads.
+      ICP Name: ${icp.name}
+      Target Industries: ${icp.industries.join(', ')}
+      Company Size: ${icp.companySize[0]}-${icp.companySize[1]} employees
+      Location: ${icp.location}
+      Keywords: ${icp.keywords.join(', ')}
+      Please provide the response as a JSON array of objects, where each object has the following keys: "name", "title", "companyName", "email", "location". Do not include any other text or explanation in your response, only the JSON array.
+    `;
+    let aiResponse = '';
+    await chatService.sendMessage(prompt, undefined, (chunk) => {
+      aiResponse += chunk;
+    });
+    try {
+      const parsedLeads = JSON.parse(aiResponse);
+      if (Array.isArray(parsedLeads)) {
+        const newLeads: Lead[] = parsedLeads.map((l: any) => ({
+          id: `lead-${Date.now()}-${Math.random()}`,
+          name: l.name || 'N/A',
+          title: l.title || 'N/A',
+          companyName: l.companyName || 'N/A',
+          email: l.email || 'N/A',
+          location: l.location || 'N/A',
+          status: 'New',
+        }));
+        addLeads(newLeads);
+        toast.success(`${newLeads.length} new leads generated!`);
+        navigate('/leads');
+      } else {
+        throw new Error("AI response was not an array.");
+      }
+    } catch (error) {
+      console.error("Failed to parse AI response:", error);
+      toast.error("Failed to generate leads. The AI returned an invalid format.");
+    }
+    setIsFindingLeads(null);
+  };
   return (
     <>
+      <Toaster richColors theme="dark" />
       <Header>
         <Button onClick={handleCreateNew}>
           <PlusCircle className="mr-2 h-4 w-4" />
@@ -52,6 +100,8 @@ export function IcpPage() {
               icp={icp}
               onEdit={() => handleEdit(icp)}
               onDelete={() => handleDelete(icp.id)}
+              onFindLeads={() => handleFindLeads(icp)}
+              isFindingLeads={isFindingLeads === icp.id}
             />
           ))}
         </div>
