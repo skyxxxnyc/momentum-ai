@@ -8,22 +8,29 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { User, LogOut } from 'lucide-react';
 import { useUserStore } from '@/stores/user-store';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 export function UserProfileDropdown() {
   const user = useUserStore(s => s.user);
+  const logout = useUserStore(s => s.logout);
   const navigate = useNavigate();
   const handleLogout = () => {
-    toast.info("Log out functionality is not implemented in this demo.");
+    logout();
+    toast.info("You have been logged out.");
+    navigate('/login');
   };
+  if (!user) {
+    return null;
+  }
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon">
           <Avatar className="h-8 w-8">
+            <AvatarImage src={user.avatarUrl} alt={user.name} />
             <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
           </Avatar>
         </Button>

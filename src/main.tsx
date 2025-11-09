@@ -25,10 +25,16 @@ import { AppInitializer } from './components/AppInitializer';
 import { ArticleListPage } from './pages/admin/ArticleListPage';
 import { ArticleEditorPage } from './pages/admin/ArticleEditorPage';
 import { TeamPage } from './pages/TeamPage';
+import { LoginPage } from './pages/LoginPage';
+import { ProtectedRoute } from './components/ProtectedRoute';
 const router = createBrowserRouter([
   {
+    path: "/login",
+    element: <LoginPage />,
+  },
+  {
     path: "/",
-    element: <HomePage />,
+    element: <ProtectedRoute><HomePage /></ProtectedRoute>,
     errorElement: <RouteErrorBoundary />,
     children: [
       { index: true, element: <DashboardPage /> },
@@ -37,11 +43,11 @@ const router = createBrowserRouter([
       { path: "contacts", element: <ContactsPage /> },
       { path: "companies", element: <CompaniesPage /> },
       { path: "icps", element: <IcpPage /> },
+      { path: "team", element: <TeamPage /> },
       { path: "knowledge-hub", element: <KnowledgeHubPage /> },
       { path: "knowledge-hub/:articleId", element: <ArticleDetailPage /> },
       { path: "chat", element: <AiChat /> },
       { path: "settings", element: <SettingsPage /> },
-      { path: "team", element: <TeamPage /> },
       { path: "admin/articles", element: <ArticleListPage /> },
       { path: "admin/articles/new", element: <ArticleEditorPage /> },
       { path: "admin/articles/edit/:articleId", element: <ArticleEditorPage /> },
@@ -53,7 +59,7 @@ createRoot(document.getElementById('root')!).render(
     <ErrorBoundary>
       <AppInitializer>
         <RouterProvider router={router} />
-      </AppInitializer>
+      </App-Initializer>
     </ErrorBoundary>
   </StrictMode>,
 )
