@@ -41,7 +41,6 @@ class ChatService {
         // Handle streaming response
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
-        let fullResponse = '';
 
         try {
           while (true) {
@@ -50,7 +49,6 @@ class ChatService {
 
             const chunk = decoder.decode(value, { stream: true });
             if (chunk) {
-              fullResponse += chunk;
               onChunk(chunk);
             }
           }
