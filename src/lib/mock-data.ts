@@ -17,6 +17,7 @@ export const COMPANIES: Company[] = Array.from({ length: 15 }, (_, i): Company =
     employees: faker.number.int({ min: 10, max: 5000 }),
     location: faker.location.city(),
     logoUrl: generateLogo(name),
+    website: faker.internet.url(),
   };
 });
 export const CONTACTS: Contact[] = Array.from({ length: 50 }, (_, i): Contact => {

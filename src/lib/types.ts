@@ -17,6 +17,7 @@ export interface Company {
   industry: string;
   employees: number;
   location: string;
+  website: string;
   logoUrl?: string;
   relationshipStrength?: number;
 }

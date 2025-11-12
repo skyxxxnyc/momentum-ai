@@ -13,13 +13,15 @@ export function CreateCompanyModal({ isOpen, onOpenChange, onCompanyCreated }: C
   const [name, setName] = useState('');
   const [industry, setIndustry] = useState('');
   const [location, setLocation] = useState('');
+  const [website, setWebsite] = useState('');
   const handleSubmit = () => {
-    if (!name || !industry || !location) return;
+    if (!name || !industry || !location || !website) return;
     const newCompany: Company = {
       id: `comp-${Date.now()}`,
       name,
       industry,
       location,
+      website,
       employees: 1, // Default value
       logoUrl: `https://logo.clearbit.com/${name.toLowerCase().replace(/ /g, '')}.com`,
     };
@@ -29,6 +31,7 @@ export function CreateCompanyModal({ isOpen, onOpenChange, onCompanyCreated }: C
     setName('');
     setIndustry('');
     setLocation('');
+    setWebsite('');
   };
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -49,6 +52,10 @@ export function CreateCompanyModal({ isOpen, onOpenChange, onCompanyCreated }: C
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="location" className="text-right">Location</Label>
             <Input id="location" value={location} onChange={(e) => setLocation(e.target.value)} className="col-span-3 bg-accent" />
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="website" className="text-right">Website</Label>
+            <Input id="website" type="url" value={website} onChange={(e) => setWebsite(e.target.value)} className="col-span-3 bg-accent" />
           </div>
         </div>
         <DialogFooter>

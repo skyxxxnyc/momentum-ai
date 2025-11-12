@@ -4,7 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Company, Task } from '@/lib/types';
-import { Mail, Phone, StickyNote, Briefcase, Building, Users, MapPin, BarChart, Zap, PlusCircle, CheckSquare } from 'lucide-react';
+import { Mail, Phone, StickyNote, Briefcase, Building, Users, MapPin, BarChart, Zap, PlusCircle, CheckSquare, Globe } from 'lucide-react';
 import { useCrmStore } from '@/stores/crm-store';
 import { LogActivityForm } from '../shared/LogActivityForm';
 import { Progress } from '@/components/ui/progress';
@@ -102,6 +102,11 @@ export function CompanyDetailSheet({ company, isOpen, onOpenChange }: CompanyDet
                   <MapPin className="w-4 h-4 mr-3 text-momentum-dark-slate" />
                   <span className="text-momentum-dark-slate mr-2">Location:</span>
                   <span>{company.location}</span>
+                </div>
+                <div className="flex items-center text-sm">
+                  <Globe className="w-4 h-4 mr-3 text-momentum-dark-slate" />
+                  <span className="text-momentum-dark-slate mr-2">Website:</span>
+                  <a href={company.website} target="_blank" rel="noopener noreferrer" className="hover:text-momentum-cyan transition-colors truncate">{company.website}</a>
                 </div>
               </div>
             </TabsContent>

@@ -2,6 +2,8 @@ import { DurableObject } from 'cloudflare:workers';
 import type { Env } from './core-utils';
 import { Contact, Company, Deal, ICP, Lead, Article, Activity, Notification, Comment, User, Task } from '../src/lib/types';
 import { CONTACTS, COMPANIES, DEALS, ICPS, LEADS, ARTICLES, ACTIVITIES, USERS, TASKS } from '../src/lib/mock-data';
+import { fetchWebContent } from './tools';
+import OpenAI from 'openai';
 type CrmEntity = 'contacts' | 'companies' | 'deals' | 'icps' | 'leads' | 'articles' | 'activities' | 'notifications' | 'comments' | 'users' | 'tasks';
 type CrmData = Contact | Company | Deal | ICP | Lead | Article | Activity | Notification | Comment | User | Task;
 interface CrmStorage {
@@ -32,8 +34,13 @@ export class AppController extends DurableObject<Env> {
     tasks: [],
   };
   private loaded = false;
+  private openai: OpenAI;
   constructor(ctx: DurableObjectState, env: Env) {
     super(ctx, env);
+    this.openai = new OpenAI({
+      baseURL: env.CF_AI_BASE_URL,
+      apiKey: env.CF_AI_API_KEY,
+    });
   }
   private async ensureLoaded(): Promise<void> {
     if (!this.loaded) {
@@ -68,6 +75,51 @@ export class AppController extends DurableObject<Env> {
   }
   private async persist(): Promise<void> {
     await this.ctx.storage.put('crm_data', this.state);
+  }
+  private async _generateCompanySummary(company: Company): Promise<void> {
+    try {
+      const content = await fetchWebContent(company.website);
+      if (content.startsWith('Failed to fetch') || content.startsWith('No readable content')) {
+        throw new Error(content);
+      }
+      const completion = await this.openai.chat.completions.create({
+        model: 'google-ai-studio/gemini-2.5-flash',
+        messages: [
+          { role: 'system', content: 'You are an expert business analyst. Summarize the following website content into a concise, one-paragraph summary for a sales team. Focus on what the company does and its key value proposition. Start with "AI-Generated Summary:"' },
+          { role: 'user', content: `Website content for ${company.name}:\n\n${content}` }
+        ],
+        max_tokens: 200,
+      });
+      const summary = completion.choices[0]?.message?.content;
+      if (summary) {
+        const firstContact = this.state.contacts.find(c => c.companyId === company.id);
+        const firstUser = this.state.users[0];
+        const noteActivity: Activity = {
+          id: `activity-${Date.now()}`,
+          type: 'Note',
+          subject: summary,
+          date: new Date().toISOString(),
+          companyId: company.id,
+          contactId: firstContact?.id || '', // Best effort
+          userId: firstUser?.id || 'user-1', // Best effort
+        };
+        this.state.activities.unshift(noteActivity);
+        await this.persist();
+      }
+    } catch (error) {
+      console.error(`Failed to generate summary for ${company.name}:`, error);
+      const errorActivity: Activity = {
+        id: `activity-${Date.now()}`,
+        type: 'Note',
+        subject: `AI Summary Failed: Could not scrape or summarize the website ${company.website}. Reason: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        date: new Date().toISOString(),
+        companyId: company.id,
+        contactId: this.state.contacts.find(c => c.companyId === company.id)?.id || '',
+        userId: this.state.users[0]?.id || 'user-1',
+      };
+      this.state.activities.unshift(errorActivity);
+      await this.persist();
+    }
   }
   private calculateRelationshipStrength(entityId: string, entityType: 'contact' | 'company'): number {
     const now = new Date().getTime();
@@ -127,6 +179,9 @@ export class AppController extends DurableObject<Env> {
           }
           const newData = await request.json<CrmData>();
           this.state[entityKey].unshift(newData as any);
+          if (entityKey === 'companies') {
+            this.ctx.waitUntil(this._generateCompanySummary(newData as Company));
+          }
           await this.persist();
           return Response.json({ success: true, data: newData });
         }
@@ -219,9 +274,11 @@ export class AppController extends DurableObject<Env> {
         industry: 'Unknown',
         employees: 1,
         location: lead.location,
+        website: `https://www.${lead.companyName.toLowerCase().replace(/ /g, '')}.com`,
         logoUrl: `https://logo.clearbit.com/${lead.companyName.toLowerCase().replace(/ /g, '')}.com`,
       };
       this.state.companies.unshift(company);
+      this.ctx.waitUntil(this._generateCompanySummary(company));
     }
     const contact = {
       id: `contact-${Date.now()}`,
