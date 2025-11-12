@@ -15,7 +15,7 @@ import { LogActivityForm } from '../shared/LogActivityForm';
 import { DealComments } from './DealComments';
 import { CreateEditTaskModal } from '../tasks/CreateEditTaskModal';
 import { toast } from 'sonner';
-import { format, isPast, isToday } from 'date-fns';
+import { format, isPast, isToday } from 'date-fns';interface BadgeProps {children?: React.ReactNode;className?: string;style?: React.CSSProperties;[key: string]: unknown;}interface BadgeProps {children?: React.ReactNode;className?: string;style?: React.CSSProperties;[key: string]: unknown;}
 interface DealDetailSheetProps {
   deal: Deal | null;
   contact: Contact | null;
@@ -29,16 +29,16 @@ const activityIcons = {
   Email: Mail,
   Call: Phone,
   Meeting: Briefcase,
-  Note: StickyNote,
+  Note: StickyNote
 };
 export function DealDetailSheet({ deal, contact, company, isOpen, onOpenChange, onEdit, onDelete }: DealDetailSheetProps) {
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
   const [aiContent, setAiContent] = useState('');
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
-  const activities = useCrmStore(s => s.activities);
-  const tasks = useCrmStore(s => s.tasks);
-  const addTask = useCrmStore(s => s.addTask);
+  const activities = useCrmStore((s) => s.activities);
+  const tasks = useCrmStore((s) => s.tasks);
+  const addTask = useCrmStore((s) => s.addTask);
   const handleDraftEmail = async () => {
     if (!deal || !contact || !company) return;
     setIsAiModalOpen(true);
@@ -46,7 +46,7 @@ export function DealDetailSheet({ deal, contact, company, isOpen, onOpenChange, 
     setAiContent('');
     const prompt = `Draft a professional follow-up email to ${contact.name} (${contact.title} at ${company.name}) regarding the "${deal.title}" deal, which is currently in the '${deal.stage}' stage. The deal value is ${deal.value}. Keep it concise and aim to move the deal to the next stage.`;
     await chatService.sendMessage(prompt, undefined, (chunk) => {
-      setAiContent(prev => prev + chunk);
+      setAiContent((prev) => prev + chunk);
     });
     setIsAiLoading(false);
   };
@@ -55,12 +55,12 @@ export function DealDetailSheet({ deal, contact, company, isOpen, onOpenChange, 
     toast.promise(promise, {
       loading: 'Creating task...',
       success: 'Task created!',
-      error: 'Failed to create task.',
+      error: 'Failed to create task.'
     });
   };
   if (!deal) return null;
-  const dealActivities = activities.filter(a => a.dealId === deal.id).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-  const dealTasks = tasks.filter(t => t.dealId === deal.id).sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime());
+  const dealActivities = activities.filter((a) => a.dealId === deal.id).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  const dealTasks = tasks.filter((t) => t.dealId === deal.id).sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime());
   const getScoreColor = (score: number) => {
     if (score > 75) return 'bg-green-500';
     if (score > 50) return 'bg-yellow-500';
@@ -108,8 +108,8 @@ export function DealDetailSheet({ deal, contact, company, isOpen, onOpenChange, 
                   <span className="text-momentum-dark-slate mr-2">Close Date:</span>
                   <span>{new Date(deal.closeDate).toLocaleDateString()}</span>
                 </div>
-                {deal.momentumScore && (
-                  <div className="flex items-center text-sm">
+                {deal.momentumScore &&
+                <div className="flex items-center text-sm">
                     <Zap className="w-4 h-4 mr-3 text-momentum-dark-slate" />
                     <span className="text-momentum-dark-slate mr-2">Momentum Score:</span>
                     <div className="flex items-center gap-2 w-1/2">
@@ -117,13 +117,13 @@ export function DealDetailSheet({ deal, contact, company, isOpen, onOpenChange, 
                       <span className="font-semibold text-momentum-slate">{deal.momentumScore}</span>
                     </div>
                   </div>
-                )}
+                }
               </div>
               <Separator />
               <div className="space-y-4">
                 <h3 className="font-semibold text-momentum-light-slate">Associated People & Places</h3>
-                {contact && (
-                  <div className="flex items-center text-sm">
+                {contact &&
+                <div className="flex items-center text-sm">
                     <User className="w-4 h-4 mr-3 text-momentum-dark-slate" />
                     <Avatar className="h-6 w-6 mr-2">
                       <AvatarImage src={contact.avatarUrl} />
@@ -132,17 +132,17 @@ export function DealDetailSheet({ deal, contact, company, isOpen, onOpenChange, 
                     <span className="font-semibold">{contact.name}</span>
                     <span className="text-momentum-dark-slate ml-2">({contact.title})</span>
                   </div>
-                )}
-                {company && (
-                   <div className="flex items-center text-sm">
+                }
+                {company &&
+                <div className="flex items-center text-sm">
                     <Building className="w-4 h-4 mr-3 text-momentum-dark-slate" />
                     <Avatar className="h-6 w-6 mr-2">
                       <AvatarImage src={company.logoUrl} />
-                      <AvatarFallback>{company.name.substring(0,2)}</AvatarFallback>
+                      <AvatarFallback>{company.name.substring(0, 2)}</AvatarFallback>
                     </Avatar>
                     <span className="font-semibold">{company.name}</span>
                   </div>
-                )}
+                }
               </div>
               <Separator />
                <div className="space-y-4">
@@ -157,7 +157,7 @@ export function DealDetailSheet({ deal, contact, company, isOpen, onOpenChange, 
               <LogActivityForm dealId={deal.id} contactId={deal.contactId} companyId={deal.companyId} />
               <Separator className="my-6" />
               <div className="space-y-6">
-                {dealActivities.length > 0 ? dealActivities.map(activity => {
+                {dealActivities.length > 0 ? dealActivities.map((activity) => {
                   const Icon = activityIcons[activity.type];
                   return (
                     <div key={activity.id} className="flex gap-4">
@@ -171,11 +171,11 @@ export function DealDetailSheet({ deal, contact, company, isOpen, onOpenChange, 
                         <p className="font-semibold text-sm text-momentum-light-slate">{activity.type}: {activity.subject}</p>
                         <p className="text-xs text-momentum-dark-slate">{new Date(activity.date).toLocaleString()}</p>
                       </div>
-                    </div>
-                  )
-                }) : (
-                  <p className="text-center text-sm text-momentum-dark-slate py-8">No activity recorded for this deal.</p>
-                )}
+                    </div>);
+
+                }) :
+                <p className="text-center text-sm text-momentum-dark-slate py-8">No activity recorded for this deal.</p>
+                }
               </div>
             </TabsContent>
             <TabsContent value="tasks" className="flex-1 overflow-y-auto p-6 space-y-4">
@@ -184,7 +184,7 @@ export function DealDetailSheet({ deal, contact, company, isOpen, onOpenChange, 
                 Add Task
               </Button>
               <div className="space-y-4">
-                {dealTasks.length > 0 ? dealTasks.map(task => {
+                {dealTasks.length > 0 ? dealTasks.map((task) => {
                   const date = new Date(task.dueDate);
                   const isOverdue = isPast(date) && !isToday(date) && task.status !== 'Done';
                   return (
@@ -197,11 +197,11 @@ export function DealDetailSheet({ deal, contact, company, isOpen, onOpenChange, 
                         </p>
                       </div>
                       <Badge variant={task.status === 'Done' ? 'default' : 'secondary'}>{task.status}</Badge>
-                    </div>
-                  );
-                }) : (
-                  <p className="text-center text-sm text-momentum-dark-slate py-8">No tasks for this deal.</p>
-                )}
+                    </div>);
+
+                }) :
+                <p className="text-center text-sm text-momentum-dark-slate py-8">No tasks for this deal.</p>
+                }
               </div>
             </TabsContent>
             <TabsContent value="comments" className="flex-1 overflow-y-auto p-6">
@@ -216,15 +216,15 @@ export function DealDetailSheet({ deal, contact, company, isOpen, onOpenChange, 
         title="Draft Follow-up Email"
         isLoading={isAiLoading}
         content={aiContent}
-        onRegenerate={handleDraftEmail}
-      />
+        onRegenerate={handleDraftEmail} />
+
       <CreateEditTaskModal
         isOpen={isTaskModalOpen}
         onOpenChange={setIsTaskModalOpen}
         task={null}
         onSave={handleSaveTask}
-        defaults={{ dealId: deal.id, contactId: deal.contactId, companyId: deal.companyId }}
-      />
-    </>
-  );
+        defaults={{ dealId: deal.id, contactId: deal.contactId, companyId: deal.companyId }} />
+
+    </>);
+
 }
