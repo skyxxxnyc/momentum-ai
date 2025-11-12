@@ -1,12 +1,7 @@
 import { DurableObject } from 'cloudflare:workers';
 import type { Env } from './core-utils';
 import { Contact, Company, Deal, ICP, Lead, Article, Activity, Notification, Comment, User } from '../src/lib/types';
-import { CONTACTS, COMPANIES, DEALS, ICPS, LEADS, ARTICLES, ACTIVITIES } from '../src/lib/mock-data';
-const USERS: User[] = [
-    { id: 'user-1', name: 'Alex Johnson', email: 'alex.johnson@momentum.ai', title: 'Sales Director', avatarUrl: 'https://api.dicebear.com/8.x/avataaars/svg?seed=alex' },
-    { id: 'user-2', name: 'Maria Garcia', email: 'maria.garcia@momentum.ai', title: 'Account Executive', avatarUrl: 'https://api.dicebear.com/8.x/avataaars/svg?seed=maria' },
-    { id: 'user-3', name: 'Chen Wei', email: 'chen.wei@momentum.ai', title: 'Sales Development Rep', avatarUrl: 'https://api.dicebear.com/8.x/avataaars/svg?seed=chen' },
-];
+import { CONTACTS, COMPANIES, DEALS, ICPS, LEADS, ARTICLES, ACTIVITIES, USERS } from '../src/lib/mock-data';
 type CrmEntity = 'contacts' | 'companies' | 'deals' | 'icps' | 'leads' | 'articles' | 'activities' | 'notifications' | 'comments' | 'users';
 type CrmData = Contact | Company | Deal | ICP | Lead | Article | Activity | Notification | Comment | User;
 interface CrmStorage {
@@ -241,6 +236,7 @@ export class AppController extends DurableObject<Env> {
       stage: 'Qualified' as const,
       companyId: company.id,
       contactId: contact.id,
+      ownerId: this.state.users[0]?.id || 'user-1', // Assign to first user as fallback
       closeDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
     };
     this.state.deals.unshift(deal);

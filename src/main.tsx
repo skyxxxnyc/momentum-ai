@@ -27,6 +27,8 @@ import { ArticleEditorPage } from './pages/admin/ArticleEditorPage';
 import { TeamPage } from './pages/TeamPage';
 import { LoginPage } from './pages/LoginPage';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import { MyHubPage } from './pages/MyHubPage';
+import { SalesCollateralPage } from './pages/SalesCollateralPage';
 const router = createBrowserRouter([
   {
     path: "/login",
@@ -38,12 +40,14 @@ const router = createBrowserRouter([
     errorElement: <RouteErrorBoundary />,
     children: [
       { index: true, element: <DashboardPage /> },
+      { path: "my-hub", element: <MyHubPage /> },
       { path: "deals", element: <DealsPage /> },
       { path: "leads", element: <LeadsPage /> },
       { path: "contacts", element: <ContactsPage /> },
       { path: "companies", element: <CompaniesPage /> },
       { path: "icps", element: <IcpPage /> },
       { path: "team", element: <TeamPage /> },
+      { path: "sales-collateral", element: <SalesCollateralPage /> },
       { path: "knowledge-hub", element: <KnowledgeHubPage /> },
       { path: "knowledge-hub/:articleId", element: <ArticleDetailPage /> },
       { path: "chat", element: <AiChat /> },

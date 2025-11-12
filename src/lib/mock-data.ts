@@ -1,7 +1,12 @@
-import { Company, Contact, Deal, Stage, Activity, Article, ICP, Lead } from './types';
+import { Company, Contact, Deal, Stage, Activity, Article, ICP, Lead, User } from './types';
 import { faker } from '@faker-js/faker';
 const generateAvatar = (seed: string) => `https://api.dicebear.com/8.x/avataaars/svg?seed=${seed}`;
 const generateLogo = (name: string) => `https://logo.clearbit.com/${name.toLowerCase().replace(/ /g, '')}.com`;
+export const USERS: User[] = [
+    { id: 'user-1', name: 'Alex Johnson', email: 'alex.johnson@momentum.ai', title: 'Sales Director', avatarUrl: 'https://api.dicebear.com/8.x/avataaars/svg?seed=alex' },
+    { id: 'user-2', name: 'Maria Garcia', email: 'maria.garcia@momentum.ai', title: 'Account Executive', avatarUrl: 'https://api.dicebear.com/8.x/avataaars/svg?seed=maria' },
+    { id: 'user-3', name: 'Chen Wei', email: 'chen.wei@momentum.ai', title: 'Sales Development Rep', avatarUrl: 'https://api.dicebear.com/8.x/avataaars/svg?seed=chen' },
+];
 export const STAGES: Stage[] = ['Lead', 'Contacted', 'Qualified', 'Proposal', 'Negotiation', 'Closed-Won', 'Closed-Lost'];
 export const COMPANIES: Company[] = Array.from({ length: 15 }, (_, i): Company => {
   const name = faker.company.name();
@@ -43,6 +48,7 @@ export const DEALS: Deal[] = Array.from({ length: 30 }, (_, i): Deal => {
     stage: faker.helpers.arrayElement(STAGES.filter(s => s !== 'Closed-Won' && s !== 'Closed-Lost')),
     contactId: contact.id,
     companyId: company.id,
+    ownerId: faker.helpers.arrayElement(USERS).id,
     closeDate: faker.date.future().toISOString(),
     lastActivity: faker.date.recent({ days: 7 }).toLocaleDateString(),
     momentumScore: faker.number.int({ min: 30, max: 95 }),
@@ -57,7 +63,7 @@ export const ACTIVITIES: Activity[] = Array.from({ length: 100 }, (_, i): Activi
         date: faker.date.recent({ days: 90 }).toISOString(),
         contactId: deal.contactId,
         dealId: deal.id,
-        userId: 'user-1',
+        userId: deal.ownerId,
         companyId: deal.companyId,
     }
 });

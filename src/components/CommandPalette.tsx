@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator } from '@/components/ui/command';
-import { LayoutDashboard, Handshake, Users, MessageSquare, PlusCircle, Building, Contact, Briefcase, BookOpen, Target, ListFilter } from 'lucide-react';
+import { LayoutDashboard, Handshake, Users, MessageSquare, PlusCircle, Building, Contact, Briefcase, BookOpen, Target, ListFilter, LayoutGrid, FileText } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useCrmStore } from '@/stores/crm-store';
 interface CommandPaletteProps {
@@ -68,6 +68,10 @@ export function CommandPalette({ open, setOpen, onNewDeal, onNewContact }: Comma
             <LayoutDashboard className="mr-2 h-4 w-4" />
             <span>Dashboard</span>
           </CommandItem>
+          <CommandItem onSelect={() => runCommand(() => navigate('/my-hub'))}>
+            <LayoutGrid className="mr-2 h-4 w-4" />
+            <span>My Hub</span>
+          </CommandItem>
           <CommandItem onSelect={() => runCommand(() => navigate('/deals'))}>
             <Handshake className="mr-2 h-4 w-4" />
             <span>Deals</span>
@@ -87,6 +91,10 @@ export function CommandPalette({ open, setOpen, onNewDeal, onNewContact }: Comma
           <CommandItem onSelect={() => runCommand(() => navigate('/icps'))}>
             <Target className="mr-2 h-4 w-4" />
             <span>ICPs</span>
+          </CommandItem>
+          <CommandItem onSelect={() => runCommand(() => navigate('/sales-collateral'))}>
+            <FileText className="mr-2 h-4 w-4" />
+            <span>Sales Collateral</span>
           </CommandItem>
           <CommandItem onSelect={() => runCommand(() => navigate('/knowledge-hub'))}>
             <BookOpen className="mr-2 h-4 w-4" />

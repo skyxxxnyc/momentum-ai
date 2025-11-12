@@ -26,6 +26,7 @@ export interface Deal {
   stage: Stage;
   contactId: string;
   companyId: string;
+  ownerId: string;
   closeDate: string;
   lastActivity?: string;
   momentumScore?: number;
