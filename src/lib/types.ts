@@ -32,6 +32,7 @@ export interface Deal {
   closeDate: string;
   lastActivity?: string;
   momentumScore?: number;
+  healthStatus?: 'on_track' | 'needs_attention' | 'at_risk';
 }
 export interface Activity {
   id: string;

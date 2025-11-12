@@ -80,6 +80,26 @@ export class AppController extends DurableObject<Env> {
   private async persist(): Promise<void> {
     await this.ctx.storage.put('crm_data', this.state);
   }
+  private _calculateDealHealth(deal: Deal, allActivities: Activity[]): 'on_track' | 'needs_attention' | 'at_risk' {
+    if (deal.stage === 'Closed-Won' || deal.stage === 'Closed-Lost') {
+      return 'on_track';
+    }
+    const now = new Date();
+    const closeDate = new Date(deal.closeDate);
+    const daysUntilClose = (closeDate.getTime() - now.getTime()) / (1000 * 3600 * 24);
+    const lastActivity = allActivities
+      .filter(a => a.dealId === deal.id)
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
+    const daysSinceLastActivity = lastActivity
+      ? (now.getTime() - new Date(lastActivity.date).getTime()) / (1000 * 3600 * 24)
+      : Infinity;
+    if (daysUntilClose < 0) return 'at_risk'; // Past due
+    if (daysSinceLastActivity > 14) return 'at_risk'; // Stale
+    if (daysSinceLastActivity > 7 || (daysUntilClose < 14 && ['Qualified', 'Proposal'].includes(deal.stage))) {
+      return 'needs_attention';
+    }
+    return 'on_track';
+  }
   private async _generateCompanySummary(company: Company): Promise<void> {
     try {
       const content = await fetchWebContent(company.website);
@@ -174,6 +194,13 @@ export class AppController extends DurableObject<Env> {
               relationshipStrength: this.calculateRelationshipStrength(company.id, 'company')
             }));
             return Response.json({ success: true, data: companiesWithStrength });
+          }
+          if (entityKey === 'deals') {
+            const dealsWithHealth = this.state.deals.map(deal => ({
+              ...deal,
+              healthStatus: this._calculateDealHealth(deal, this.state.activities)
+            }));
+            return Response.json({ success: true, data: dealsWithHealth });
           }
           return Response.json({ success: true, data: this.state[entityKey] || [] });
         case 'POST': {

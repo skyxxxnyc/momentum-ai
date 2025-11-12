@@ -5,7 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Deal, Contact, Company, Task } from '@/lib/types';
-import { MessageSquarePlus, DollarSign, Calendar, User, Building, Mail, Phone, StickyNote, Briefcase, Edit, Trash2, Zap, PlusCircle, CheckSquare } from 'lucide-react';
+import { MessageSquarePlus, DollarSign, Calendar, User, Building, Mail, Phone, StickyNote, Briefcase, Edit, Trash2, Zap, PlusCircle, CheckSquare, ShieldCheck, ShieldAlert, ShieldX } from 'lucide-react';
 import { AiActionModal } from '../shared/AiActionModal';
 import { chatService } from '@/lib/chat';
 import { useCrmStore } from '@/stores/crm-store';
@@ -31,6 +31,11 @@ const activityIcons = {
   Call: Phone,
   Meeting: Briefcase,
   Note: StickyNote
+};
+const healthInfo = {
+  on_track: { icon: ShieldCheck, color: 'text-green-400', label: 'On Track' },
+  needs_attention: { icon: ShieldAlert, color: 'text-yellow-400', label: 'Needs Attention' },
+  at_risk: { icon: ShieldX, color: 'text-red-400', label: 'At Risk' },
 };
 export function DealDetailSheet({ deal, contact, company, isOpen, onOpenChange, onEdit, onDelete }: DealDetailSheetProps) {
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
@@ -67,6 +72,7 @@ export function DealDetailSheet({ deal, contact, company, isOpen, onOpenChange, 
     if (score > 50) return 'bg-yellow-500';
     return 'bg-red-500';
   };
+  const HealthIcon = deal.healthStatus ? healthInfo[deal.healthStatus].icon : null;
   return (
     <>
       <Sheet open={isOpen} onOpenChange={onOpenChange}>
@@ -117,6 +123,13 @@ export function DealDetailSheet({ deal, contact, company, isOpen, onOpenChange, 
                       <Progress value={deal.momentumScore} className={cn("w-full h-2", getScoreColor(deal.momentumScore))} />
                       <span className="font-semibold text-momentum-slate">{deal.momentumScore}</span>
                     </div>
+                  </div>
+                }
+                {HealthIcon && deal.healthStatus &&
+                  <div className="flex items-center text-sm">
+                    <HealthIcon className={cn("w-4 h-4 mr-3", healthInfo[deal.healthStatus].color)} />
+                    <span className="text-momentum-dark-slate mr-2">Health Status:</span>
+                    <span className={cn("font-semibold", healthInfo[deal.healthStatus].color)}>{healthInfo[deal.healthStatus].label}</span>
                   </div>
                 }
               </div>

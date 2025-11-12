@@ -31,6 +31,7 @@ import { MyHubPage } from './pages/MyHubPage';
 import { SalesCollateralPage } from './pages/SalesCollateralPage';
 import { TasksPage } from './pages/TasksPage';
 import { GoalsPage } from './pages/GoalsPage';
+import { ReportingPage } from './pages/ReportingPage';
 const router = createBrowserRouter([
   {
     path: "/login",
@@ -51,6 +52,7 @@ const router = createBrowserRouter([
       { path: "team", element: <TeamPage /> },
       { path: "tasks", element: <TasksPage /> },
       { path: "goals", element: <GoalsPage /> },
+      { path: "reporting", element: <ReportingPage /> },
       { path: "sales-collateral", element: <SalesCollateralPage /> },
       { path: "knowledge-hub", element: <KnowledgeHubPage /> },
       { path: "knowledge-hub/:articleId", element: <ArticleDetailPage /> },

@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Handshake, Users, Building, MessageSquare, Settings, BookOpen, Target, ListFilter, ShieldCheck, Users2, LayoutGrid, FileText, CheckSquare, TrendingUp } from 'lucide-react';
+import { LayoutDashboard, Handshake, Users, Building, MessageSquare, Settings, BookOpen, Target, ListFilter, ShieldCheck, Users2, LayoutGrid, FileText, CheckSquare, TrendingUp, BarChart3 } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 const navItems = [
@@ -12,6 +12,7 @@ const navItems = [
   { to: '/companies', icon: Building, label: 'Companies' },
   { to: '/tasks', icon: CheckSquare, label: 'Tasks' },
   { to: '/goals', icon: TrendingUp, label: 'Goals' },
+  { to: '/reporting', icon: BarChart3, label: 'Reporting' },
   { to: '/icps', icon: Target, label: 'ICPs' },
   { to: '/team', icon: Users2, label: 'Team' },
   { to: '/sales-collateral', icon: FileText, label: 'Sales Collateral' },

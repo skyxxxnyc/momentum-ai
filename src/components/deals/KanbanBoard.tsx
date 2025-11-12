@@ -8,9 +8,10 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Deal, Stage, Contact, Company } from '@/lib/types';
 import { STAGES } from '@/lib/mock-data';
 import { createPortal } from 'react-dom';
-import { Clock, Zap } from 'lucide-react';
+import { Clock, Zap, ShieldCheck, ShieldAlert, ShieldX } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 interface DealCardProps {
   deal: Deal;
   contact?: Contact;
@@ -18,6 +19,11 @@ interface DealCardProps {
   isOverlay?: boolean;
   onClick: () => void;
 }
+const healthIcons = {
+  on_track: { icon: ShieldCheck, color: 'text-green-400', label: 'On Track' },
+  needs_attention: { icon: ShieldAlert, color: 'text-yellow-400', label: 'Needs Attention' },
+  at_risk: { icon: ShieldX, color: 'text-red-400', label: 'At Risk' },
+};
 function DealCard({ deal, contact, company, isOverlay, onClick }: DealCardProps) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: deal.id, data: { stage: deal.stage } });
   const style = {
@@ -29,6 +35,7 @@ function DealCard({ deal, contact, company, isOverlay, onClick }: DealCardProps)
     if (score > 50) return 'bg-yellow-500';
     return 'bg-red-500';
   };
+  const HealthIcon = deal.healthStatus ? healthIcons[deal.healthStatus].icon : null;
   return (
     <Card
       ref={setNodeRef}
@@ -39,9 +46,23 @@ function DealCard({ deal, contact, company, isOverlay, onClick }: DealCardProps)
       className={`mb-4 bg-accent cursor-grab active:cursor-grabbing transition-shadow hover:shadow-lg ${isDragging ? 'opacity-50' : ''} ${isOverlay ? 'shadow-xl' : ''}`}
     >
       <CardContent className="p-4 space-y-3">
-        <div>
-            <h4 className="font-semibold text-momentum-slate">{deal.title}</h4>
-            <p className="text-sm text-momentum-dark-slate">{company?.name}</p>
+        <div className="flex justify-between items-start">
+            <div>
+                <h4 className="font-semibold text-momentum-slate">{deal.title}</h4>
+                <p className="text-sm text-momentum-dark-slate">{company?.name}</p>
+            </div>
+            {HealthIcon && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <HealthIcon className={cn("h-5 w-5", deal.healthStatus && healthIcons[deal.healthStatus].color)} />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Health: {deal.healthStatus && healthIcons[deal.healthStatus].label}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
         </div>
         <div className="flex items-center justify-between">
           <span className="text-lg font-bold text-momentum-cyan">
