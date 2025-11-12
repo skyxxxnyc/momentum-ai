@@ -4,8 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Deal, Contact, Company } from '@/lib/types';
-import { MessageSquarePlus, DollarSign, Calendar, User, Building, Mail, Phone, StickyNote, Briefcase, Edit, Trash2, Zap } from 'lucide-react';
+import { Deal, Contact, Company, Task } from '@/lib/types';
+import { MessageSquarePlus, DollarSign, Calendar, User, Building, Mail, Phone, StickyNote, Briefcase, Edit, Trash2, Zap, PlusCircle, CheckSquare } from 'lucide-react';
 import { AiActionModal } from '../shared/AiActionModal';
 import { chatService } from '@/lib/chat';
 import { useCrmStore } from '@/stores/crm-store';
@@ -13,6 +13,9 @@ import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
 import { LogActivityForm } from '../shared/LogActivityForm';
 import { DealComments } from './DealComments';
+import { CreateEditTaskModal } from '../tasks/CreateEditTaskModal';
+import { toast } from 'sonner';
+import { format, isPast, isToday } from 'date-fns';
 interface DealDetailSheetProps {
   deal: Deal | null;
   contact: Contact | null;
@@ -32,7 +35,10 @@ export function DealDetailSheet({ deal, contact, company, isOpen, onOpenChange, 
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
   const [aiContent, setAiContent] = useState('');
   const [isAiLoading, setIsAiLoading] = useState(false);
+  const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
   const activities = useCrmStore(s => s.activities);
+  const tasks = useCrmStore(s => s.tasks);
+  const addTask = useCrmStore(s => s.addTask);
   const handleDraftEmail = async () => {
     if (!deal || !contact || !company) return;
     setIsAiModalOpen(true);
@@ -44,8 +50,17 @@ export function DealDetailSheet({ deal, contact, company, isOpen, onOpenChange, 
     });
     setIsAiLoading(false);
   };
+  const handleSaveTask = (task: Task) => {
+    const promise = addTask({ ...task, id: `task-${Date.now()}` });
+    toast.promise(promise, {
+      loading: 'Creating task...',
+      success: 'Task created!',
+      error: 'Failed to create task.',
+    });
+  };
   if (!deal) return null;
   const dealActivities = activities.filter(a => a.dealId === deal.id).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  const dealTasks = tasks.filter(t => t.dealId === deal.id).sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime());
   const getScoreColor = (score: number) => {
     if (score > 75) return 'bg-green-500';
     if (score > 50) return 'bg-yellow-500';
@@ -74,9 +89,10 @@ export function DealDetailSheet({ deal, contact, company, isOpen, onOpenChange, 
             </div>
           </SheetHeader>
           <Tabs defaultValue="details" className="w-full flex-1 flex flex-col">
-            <TabsList className="grid w-full grid-cols-3 mt-4 px-6">
+            <TabsList className="grid w-full grid-cols-4 mt-4 px-6">
               <TabsTrigger value="details">Details</TabsTrigger>
               <TabsTrigger value="activity">Activity</TabsTrigger>
+              <TabsTrigger value="tasks">Tasks</TabsTrigger>
               <TabsTrigger value="comments">Comments</TabsTrigger>
             </TabsList>
             <TabsContent value="details" className="flex-1 overflow-y-auto p-6 space-y-6">
@@ -162,6 +178,32 @@ export function DealDetailSheet({ deal, contact, company, isOpen, onOpenChange, 
                 )}
               </div>
             </TabsContent>
+            <TabsContent value="tasks" className="flex-1 overflow-y-auto p-6 space-y-4">
+              <Button onClick={() => setIsTaskModalOpen(true)} className="w-full">
+                <PlusCircle className="mr-2 h-4 w-4" />
+                Add Task
+              </Button>
+              <div className="space-y-4">
+                {dealTasks.length > 0 ? dealTasks.map(task => {
+                  const date = new Date(task.dueDate);
+                  const isOverdue = isPast(date) && !isToday(date) && task.status !== 'Done';
+                  return (
+                    <div key={task.id} className="flex items-start gap-3 p-3 rounded-md bg-accent">
+                      <CheckSquare className="h-5 w-5 mt-1 text-momentum-dark-slate" />
+                      <div className="flex-1">
+                        <p className="text-momentum-light-slate">{task.title}</p>
+                        <p className={cn("text-xs", isOverdue ? "text-red-400" : "text-momentum-dark-slate")}>
+                          Due: {format(date, 'MMM d, yyyy')}
+                        </p>
+                      </div>
+                      <Badge variant={task.status === 'Done' ? 'default' : 'secondary'}>{task.status}</Badge>
+                    </div>
+                  );
+                }) : (
+                  <p className="text-center text-sm text-momentum-dark-slate py-8">No tasks for this deal.</p>
+                )}
+              </div>
+            </TabsContent>
             <TabsContent value="comments" className="flex-1 overflow-y-auto p-6">
               <DealComments dealId={deal.id} />
             </TabsContent>
@@ -175,6 +217,13 @@ export function DealDetailSheet({ deal, contact, company, isOpen, onOpenChange, 
         isLoading={isAiLoading}
         content={aiContent}
         onRegenerate={handleDraftEmail}
+      />
+      <CreateEditTaskModal
+        isOpen={isTaskModalOpen}
+        onOpenChange={setIsTaskModalOpen}
+        task={null}
+        onSave={handleSaveTask}
+        defaults={{ dealId: deal.id, contactId: deal.contactId, companyId: deal.companyId }}
       />
     </>
   );

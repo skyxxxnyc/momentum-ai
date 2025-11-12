@@ -1,9 +1,9 @@
 import { DurableObject } from 'cloudflare:workers';
 import type { Env } from './core-utils';
-import { Contact, Company, Deal, ICP, Lead, Article, Activity, Notification, Comment, User } from '../src/lib/types';
-import { CONTACTS, COMPANIES, DEALS, ICPS, LEADS, ARTICLES, ACTIVITIES, USERS } from '../src/lib/mock-data';
-type CrmEntity = 'contacts' | 'companies' | 'deals' | 'icps' | 'leads' | 'articles' | 'activities' | 'notifications' | 'comments' | 'users';
-type CrmData = Contact | Company | Deal | ICP | Lead | Article | Activity | Notification | Comment | User;
+import { Contact, Company, Deal, ICP, Lead, Article, Activity, Notification, Comment, User, Task } from '../src/lib/types';
+import { CONTACTS, COMPANIES, DEALS, ICPS, LEADS, ARTICLES, ACTIVITIES, USERS, TASKS } from '../src/lib/mock-data';
+type CrmEntity = 'contacts' | 'companies' | 'deals' | 'icps' | 'leads' | 'articles' | 'activities' | 'notifications' | 'comments' | 'users' | 'tasks';
+type CrmData = Contact | Company | Deal | ICP | Lead | Article | Activity | Notification | Comment | User | Task;
 interface CrmStorage {
   contacts: Contact[];
   companies: Company[];
@@ -15,6 +15,7 @@ interface CrmStorage {
   notifications: Notification[];
   comments: Comment[];
   users: User[];
+  tasks: Task[];
 }
 export class AppController extends DurableObject<Env> {
   private state: CrmStorage = {
@@ -28,6 +29,7 @@ export class AppController extends DurableObject<Env> {
     notifications: [],
     comments: [],
     users: [],
+    tasks: [],
   };
   private loaded = false;
   constructor(ctx: DurableObjectState, env: Env) {
@@ -42,6 +44,7 @@ export class AppController extends DurableObject<Env> {
           notifications: stored.notifications || [],
           comments: stored.comments || [],
           users: stored.users || USERS,
+          tasks: stored.tasks || TASKS,
         };
       } else {
         // First-time initialization with mock data
@@ -56,6 +59,7 @@ export class AppController extends DurableObject<Env> {
           notifications: [],
           comments: [],
           users: USERS,
+          tasks: TASKS,
         };
         await this.persist();
       }

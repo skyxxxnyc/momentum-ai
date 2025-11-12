@@ -1,4 +1,4 @@
-import { Company, Contact, Deal, Stage, Activity, Article, ICP, Lead, User } from './types';
+import { Company, Contact, Deal, Stage, Activity, Article, ICP, Lead, User, Task, TaskStatus } from './types';
 import { faker } from '@faker-js/faker';
 const generateAvatar = (seed: string) => `https://api.dicebear.com/8.x/avataaars/svg?seed=${seed}`;
 const generateLogo = (name: string) => `https://logo.clearbit.com/${name.toLowerCase().replace(/ /g, '')}.com`;
@@ -103,3 +103,16 @@ export const ICPS: ICP[] = [
   },
 ];
 export const LEADS: Lead[] = [];
+export const TASKS: Task[] = Array.from({ length: 40 }, (_, i): Task => {
+  const deal = faker.helpers.arrayElement(DEALS);
+  return {
+    id: `task-${i}`,
+    title: faker.lorem.sentence({ min: 3, max: 6 }),
+    dueDate: faker.date.future({ years: 0.5 }).toISOString(),
+    status: faker.helpers.arrayElement<TaskStatus>(['To Do', 'In Progress', 'Done']),
+    ownerId: deal.ownerId,
+    dealId: deal.id,
+    contactId: deal.contactId,
+    companyId: deal.companyId,
+  };
+});

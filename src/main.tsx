@@ -29,6 +29,7 @@ import { LoginPage } from './pages/LoginPage';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { MyHubPage } from './pages/MyHubPage';
 import { SalesCollateralPage } from './pages/SalesCollateralPage';
+import { TasksPage } from './pages/TasksPage';
 const router = createBrowserRouter([
   {
     path: "/login",
@@ -47,6 +48,7 @@ const router = createBrowserRouter([
       { path: "companies", element: <CompaniesPage /> },
       { path: "icps", element: <IcpPage /> },
       { path: "team", element: <TeamPage /> },
+      { path: "tasks", element: <TasksPage /> },
       { path: "sales-collateral", element: <SalesCollateralPage /> },
       { path: "knowledge-hub", element: <KnowledgeHubPage /> },
       { path: "knowledge-hub/:articleId", element: <ArticleDetailPage /> },

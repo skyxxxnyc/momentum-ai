@@ -1,4 +1,5 @@
 export type Stage = 'Lead' | 'Contacted' | 'Qualified' | 'Proposal' | 'Negotiation' | 'Closed-Won' | 'Closed-Lost';
+export type TaskStatus = 'To Do' | 'In Progress' | 'Done';
 export interface Contact {
   id: string;
   name: string;
@@ -91,4 +92,14 @@ export interface User {
   email: string;
   title: string;
   avatarUrl: string;
+}
+export interface Task {
+  id: string;
+  title: string;
+  dueDate: string;
+  status: TaskStatus;
+  ownerId: string;
+  dealId?: string;
+  contactId?: string;
+  companyId?: string;
 }

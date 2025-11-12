@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator } from '@/components/ui/command';
-import { LayoutDashboard, Handshake, Users, MessageSquare, PlusCircle, Building, Contact, Briefcase, BookOpen, Target, ListFilter, LayoutGrid, FileText } from 'lucide-react';
+import { LayoutDashboard, Handshake, Users, MessageSquare, PlusCircle, Building, Contact, Briefcase, BookOpen, Target, ListFilter, LayoutGrid, FileText, CheckSquare } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useCrmStore } from '@/stores/crm-store';
 interface CommandPaletteProps {
@@ -8,8 +8,9 @@ interface CommandPaletteProps {
   setOpen: (open: boolean) => void;
   onNewDeal?: () => void;
   onNewContact?: () => void;
+  onNewTask?: () => void;
 }
-export function CommandPalette({ open, setOpen, onNewDeal, onNewContact }: CommandPaletteProps) {
+export function CommandPalette({ open, setOpen, onNewDeal, onNewContact, onNewTask }: CommandPaletteProps) {
   const navigate = useNavigate();
   const deals = useCrmStore(s => s.deals);
   const contacts = useCrmStore(s => s.contacts);
@@ -88,6 +89,10 @@ export function CommandPalette({ open, setOpen, onNewDeal, onNewContact }: Comma
             <Building className="mr-2 h-4 w-4" />
             <span>Companies</span>
           </CommandItem>
+          <CommandItem onSelect={() => runCommand(() => navigate('/tasks'))}>
+            <CheckSquare className="mr-2 h-4 w-4" />
+            <span>Tasks</span>
+          </CommandItem>
           <CommandItem onSelect={() => runCommand(() => navigate('/icps'))}>
             <Target className="mr-2 h-4 w-4" />
             <span>ICPs</span>
@@ -114,6 +119,10 @@ export function CommandPalette({ open, setOpen, onNewDeal, onNewContact }: Comma
           <CommandItem onSelect={() => runCommand(() => onNewContact?.())} disabled={!onNewContact}>
             <PlusCircle className="mr-2 h-4 w-4" />
             <span>New Contact</span>
+          </CommandItem>
+          <CommandItem onSelect={() => runCommand(() => onNewTask?.())} disabled={!onNewTask}>
+            <PlusCircle className="mr-2 h-4 w-4" />
+            <span>New Task</span>
           </CommandItem>
         </CommandGroup>
       </CommandList>
