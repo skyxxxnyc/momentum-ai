@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator } from '@/components/ui/command';
-import { LayoutDashboard, Handshake, Users, MessageSquare, PlusCircle, Building, Contact, Briefcase, BookOpen, Target, ListFilter, LayoutGrid, FileText, CheckSquare } from 'lucide-react';
+import { LayoutDashboard, Handshake, Users, MessageSquare, PlusCircle, Building, Contact, Briefcase, BookOpen, Target, ListFilter, LayoutGrid, FileText, CheckSquare, TrendingUp } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useCrmStore } from '@/stores/crm-store';
 interface CommandPaletteProps {
@@ -92,6 +92,10 @@ export function CommandPalette({ open, setOpen, onNewDeal, onNewContact, onNewTa
           <CommandItem onSelect={() => runCommand(() => navigate('/tasks'))}>
             <CheckSquare className="mr-2 h-4 w-4" />
             <span>Tasks</span>
+          </CommandItem>
+          <CommandItem onSelect={() => runCommand(() => navigate('/goals'))}>
+            <TrendingUp className="mr-2 h-4 w-4" />
+            <span>Goals</span>
           </CommandItem>
           <CommandItem onSelect={() => runCommand(() => navigate('/icps'))}>
             <Target className="mr-2 h-4 w-4" />

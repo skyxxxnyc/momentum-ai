@@ -30,6 +30,7 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import { MyHubPage } from './pages/MyHubPage';
 import { SalesCollateralPage } from './pages/SalesCollateralPage';
 import { TasksPage } from './pages/TasksPage';
+import { GoalsPage } from './pages/GoalsPage';
 const router = createBrowserRouter([
   {
     path: "/login",
@@ -49,6 +50,7 @@ const router = createBrowserRouter([
       { path: "icps", element: <IcpPage /> },
       { path: "team", element: <TeamPage /> },
       { path: "tasks", element: <TasksPage /> },
+      { path: "goals", element: <GoalsPage /> },
       { path: "sales-collateral", element: <SalesCollateralPage /> },
       { path: "knowledge-hub", element: <KnowledgeHubPage /> },
       { path: "knowledge-hub/:articleId", element: <ArticleDetailPage /> },

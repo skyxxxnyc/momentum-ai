@@ -1,4 +1,4 @@
-import { Company, Contact, Deal, Stage, Activity, Article, ICP, Lead, User, Task, TaskStatus } from './types';
+import { Company, Contact, Deal, Stage, Activity, Article, ICP, Lead, User, Task, TaskStatus, Goal } from './types';
 import { faker } from '@faker-js/faker';
 const generateAvatar = (seed: string) => `https://api.dicebear.com/8.x/avataaars/svg?seed=${seed}`;
 const generateLogo = (name: string) => `https://logo.clearbit.com/${name.toLowerCase().replace(/ /g, '')}.com`;
@@ -116,4 +116,36 @@ export const TASKS: Task[] = Array.from({ length: 40 }, (_, i): Task => {
     contactId: deal.contactId,
     companyId: deal.companyId,
   };
+});
+export const GOALS: Goal[] = USERS.flatMap(user => {
+  const quarterStart = new Date();
+  quarterStart.setMonth(Math.floor(quarterStart.getMonth() / 3) * 3, 1);
+  quarterStart.setHours(0, 0, 0, 0);
+  const quarterEnd = new Date(quarterStart);
+  quarterEnd.setMonth(quarterEnd.getMonth() + 3);
+  quarterEnd.setDate(0);
+  quarterEnd.setHours(23, 59, 59, 999);
+  const userDeals = DEALS.filter(d => d.ownerId === user.id && d.stage === 'Closed-Won');
+  const revenueAchieved = userDeals.reduce((sum, deal) => sum + deal.value, 0);
+  const dealsWon = userDeals.length;
+  return [
+    {
+      id: `goal-${user.id}-revenue`,
+      userId: user.id,
+      type: 'revenue',
+      targetValue: 250000,
+      currentValue: revenueAchieved,
+      startDate: quarterStart.toISOString(),
+      endDate: quarterEnd.toISOString(),
+    },
+    {
+      id: `goal-${user.id}-deals`,
+      userId: user.id,
+      type: 'deals_won',
+      targetValue: 15,
+      currentValue: dealsWon,
+      startDate: quarterStart.toISOString(),
+      endDate: quarterEnd.toISOString(),
+    }
+  ];
 });

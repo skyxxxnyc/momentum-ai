@@ -104,3 +104,12 @@ export interface Task {
   contactId?: string;
   companyId?: string;
 }
+export interface Goal {
+  id: string;
+  userId: string;
+  type: 'revenue' | 'deals_won';
+  targetValue: number;
+  currentValue: number;
+  startDate: string;
+  endDate: string;
+}

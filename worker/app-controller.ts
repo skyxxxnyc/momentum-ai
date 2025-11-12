@@ -1,11 +1,11 @@
 import { DurableObject } from 'cloudflare:workers';
 import type { Env } from './core-utils';
-import { Contact, Company, Deal, ICP, Lead, Article, Activity, Notification, Comment, User, Task } from '../src/lib/types';
-import { CONTACTS, COMPANIES, DEALS, ICPS, LEADS, ARTICLES, ACTIVITIES, USERS, TASKS } from '../src/lib/mock-data';
+import { Contact, Company, Deal, ICP, Lead, Article, Activity, Notification, Comment, User, Task, Goal } from '../src/lib/types';
+import { CONTACTS, COMPANIES, DEALS, ICPS, LEADS, ARTICLES, ACTIVITIES, USERS, TASKS, GOALS } from '../src/lib/mock-data';
 import { fetchWebContent } from './tools';
 import OpenAI from 'openai';
-type CrmEntity = 'contacts' | 'companies' | 'deals' | 'icps' | 'leads' | 'articles' | 'activities' | 'notifications' | 'comments' | 'users' | 'tasks';
-type CrmData = Contact | Company | Deal | ICP | Lead | Article | Activity | Notification | Comment | User | Task;
+type CrmEntity = 'contacts' | 'companies' | 'deals' | 'icps' | 'leads' | 'articles' | 'activities' | 'notifications' | 'comments' | 'users' | 'tasks' | 'goals';
+type CrmData = Contact | Company | Deal | ICP | Lead | Article | Activity | Notification | Comment | User | Task | Goal;
 interface CrmStorage {
   contacts: Contact[];
   companies: Company[];
@@ -18,6 +18,7 @@ interface CrmStorage {
   comments: Comment[];
   users: User[];
   tasks: Task[];
+  goals: Goal[];
 }
 export class AppController extends DurableObject<Env> {
   private state: CrmStorage = {
@@ -32,6 +33,7 @@ export class AppController extends DurableObject<Env> {
     comments: [],
     users: [],
     tasks: [],
+    goals: [],
   };
   private loaded = false;
   private openai: OpenAI;
@@ -52,6 +54,7 @@ export class AppController extends DurableObject<Env> {
           comments: stored.comments || [],
           users: stored.users || USERS,
           tasks: stored.tasks || TASKS,
+          goals: stored.goals || GOALS,
         };
       } else {
         // First-time initialization with mock data
@@ -67,6 +70,7 @@ export class AppController extends DurableObject<Env> {
           comments: [],
           users: USERS,
           tasks: TASKS,
+          goals: GOALS,
         };
         await this.persist();
       }
