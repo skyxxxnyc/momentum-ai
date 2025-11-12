@@ -14,8 +14,9 @@ interface HeaderProps {
   children?: React.ReactNode;
   onNewDeal?: () => void;
   onNewContact?: () => void;
+  onNewTask?: () => void;
 }
-export function Header({ children, onNewDeal, onNewContact }: HeaderProps) {
+export function Header({ children, onNewDeal, onNewContact, onNewTask }: HeaderProps) {
   const location = useLocation();
   const [open, setOpen] = React.useState(false);
   return (
@@ -33,7 +34,7 @@ export function Header({ children, onNewDeal, onNewContact }: HeaderProps) {
           <UserProfileDropdown />
         </div>
       </header>
-      <CommandPalette open={open} setOpen={setOpen} onNewDeal={onNewDeal} onNewContact={onNewContact} />
+      <CommandPalette open={open} setOpen={setOpen} onNewDeal={onNewDeal} onNewContact={onNewContact} onNewTask={onNewTask} />
     </>
   );
 }

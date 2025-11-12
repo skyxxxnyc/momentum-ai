@@ -15,7 +15,8 @@ import { LogActivityForm } from '../shared/LogActivityForm';
 import { DealComments } from './DealComments';
 import { CreateEditTaskModal } from '../tasks/CreateEditTaskModal';
 import { toast } from 'sonner';
-import { format, isPast, isToday } from 'date-fns';interface BadgeProps {children?: React.ReactNode;className?: string;style?: React.CSSProperties;[key: string]: unknown;}interface BadgeProps {children?: React.ReactNode;className?: string;style?: React.CSSProperties;[key: string]: unknown;}
+import { format, isPast, isToday } from 'date-fns';
+import { Badge } from '@/components/ui/badge';
 interface DealDetailSheetProps {
   deal: Deal | null;
   contact: Contact | null;
@@ -75,7 +76,7 @@ export function DealDetailSheet({ deal, contact, company, isOpen, onOpenChange, 
               <div>
                 <SheetTitle className="text-2xl font-bold text-momentum-slate">{deal.title}</SheetTitle>
                 <SheetDescription className="text-momentum-dark-slate">
-                  {company?.name} �� Stage: <span className="text-momentum-cyan">{deal.stage}</span>
+                  {company?.name} · Stage: <span className="text-momentum-cyan">{deal.stage}</span>
                 </SheetDescription>
               </div>
               <div className="flex gap-2">
@@ -172,7 +173,6 @@ export function DealDetailSheet({ deal, contact, company, isOpen, onOpenChange, 
                         <p className="text-xs text-momentum-dark-slate">{new Date(activity.date).toLocaleString()}</p>
                       </div>
                     </div>);
-
                 }) :
                 <p className="text-center text-sm text-momentum-dark-slate py-8">No activity recorded for this deal.</p>
                 }
@@ -198,7 +198,6 @@ export function DealDetailSheet({ deal, contact, company, isOpen, onOpenChange, 
                       </div>
                       <Badge variant={task.status === 'Done' ? 'default' : 'secondary'}>{task.status}</Badge>
                     </div>);
-
                 }) :
                 <p className="text-center text-sm text-momentum-dark-slate py-8">No tasks for this deal.</p>
                 }
@@ -217,14 +216,11 @@ export function DealDetailSheet({ deal, contact, company, isOpen, onOpenChange, 
         isLoading={isAiLoading}
         content={aiContent}
         onRegenerate={handleDraftEmail} />
-
       <CreateEditTaskModal
         isOpen={isTaskModalOpen}
         onOpenChange={setIsTaskModalOpen}
         task={null}
         onSave={handleSaveTask}
         defaults={{ dealId: deal.id, contactId: deal.contactId, companyId: deal.companyId }} />
-
     </>);
-
 }
